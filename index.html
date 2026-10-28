@@ -431,7 +431,7 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
       </div>
       <div class="plot" id="plot-wl"></div>
       <div class="tableview" id="tv-wl"></div>
-      <figcaption>Each bar is one booking. Colour shows either how many times the booking has already been rolled or its cargo class (1 medical, 2 spare parts for machines in service, 3 everything else). <b>Switch the colour to see that urgent cargo sits in both the rolled and the new groups.</b></figcaption>
+      <figcaption>Each bar is one booking from Exhibit 3, coloured by how many times it has already been rolled. The seven rolled bookings at the top take 96 of the 200 free TEU before any new booking is considered. <b>Hover a bar to see its cargo and containers, or press Table for the full list.</b></figcaption>
     </div>
   </figure>
 </section>
@@ -500,6 +500,7 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
       <li><b>Where it ranks.</b> After TEU, so it only chooses between plans that are equally full. It never costs space and never breaks the no-second-rollover promise.</li>
       <li><b>What it changed.</b> Nothing in Exhibits 2 or 3: every medical and spare-parts booking already sails. Across hundreds of simulated waiting lists, though, it changes the plan in most of them. <a href="#simulation">See the Simulation tab</a>.</li>
     </ul>
+    <p class="xdown"><b>In Exhibit 3.</b> Class 1: Yamoussoukro Pharma (medical consumables, already rolled twice) and Ivoire Medical (hospital beds). Class 2: San-Pédro Auto Parts (vehicle spare parts, already rolled twice), Korhogo Cotton (cotton gin spares) and Xiamen Heavy (excavator parts). The other 17 bookings are standard.</p>
     <p class="xdown"><b>The downside.</b> Cargo classes only work once Kling has set them up and agreed them: a written definition of each class, agreement from the commercial team, and terms customers accept at booking. Even then the line is partly subjective. Irrigation equipment, generators, telecom equipment and tyres could each be argued into a higher class, so borderline cases need a named owner to decide them, and customers will dispute the result.</p>
   </aside>
 
@@ -1459,7 +1460,7 @@ function drawWL(){
     .attr('fill',C.ink2).style('font-size','12px').style('font-variant-numeric','tabular-nums').text(d=>d.teu);
   const colR=d=>d.rolled>=2?C.red3:d.rolled===1?C.cas:C.sub, colK=d=>d.cls===1?C.blue3:d.cls===2?C.sub:C.grey;
   const clsName=k=>k===1?'1 · medical':k===2?'2 · spare parts':'3 · standard';
-  bars.on('mousemove',(ev,d)=>tip.show(rws([['Cargo',d.cargo],['Containers',`${d.n40} × 40 ft, ${d.n20} × 20 ft`],['TEU',d.teu],['Times rolled',d.rolled],['Cargo class',clsName(d.cls)]],`${d.id} · ${d.name}`),ev)).on('mouseleave',()=>tip.hide());
+  bars.on('mousemove',(ev,d)=>tip.show(rws([['Cargo',d.cargo],['Containers',`${d.n40} × 40 ft, ${d.n20} × 20 ft`],['TEU',d.teu],['Times rolled',d.rolled]],`${d.id} · ${d.name}`),ev)).on('mouseleave',()=>tip.hide());
   function sum(f){const r=rows.filter(f);return `${r.length} bookings, ${d3.sum(r,d=>d.teu)} TEU`;}
   function render(){bars.attr('fill',mode==='rolled'?colR:colK);
     if(mode==='rolled'){keys(n,[{color:C.red3,label:'Rolled twice'},{color:C.cas,label:'Rolled once'},{color:C.sub,label:'New on this list'}]);
@@ -1467,9 +1468,8 @@ function drawWL(){
     else{keys(n,[{color:C.blue3,label:'Class 1 · medical'},{color:C.sub,label:'Class 2 · spare parts'},{color:C.grey,label:'Class 3 · standard'}]);
       noteIn(n).html(`Class 1: ${sum(d=>d.cls===1)}. Class 2: ${sum(d=>d.cls===2)}. Class 3: ${sum(d=>d.cls===3)}. <b>Yamoussoukro Pharma is medical cargo already rolled twice.</b>`);}
     d3.select(n).select('.legend').lower();d3.select(n).select('svg').lower();}
-  seg(ctl(id),[{key:'rolled',label:'Times rolled'},{key:'cls',label:'Cargo class'}],mode,k=>{mode=k;render();});
   render();
-  table(id,['Booking','Customer','Cargo','40 ft','20 ft','TEU','Times rolled','Class'],rows.map(d=>[d.id,d.name,d.cargo,d.n40,d.n20,d.teu,d.rolled,d.cls]));
+  table(id,['Booking','Customer','Cargo','40 ft','20 ft','TEU','Times rolled'],rows.map(d=>[d.id,d.name,d.cargo,d.n40,d.n20,d.teu,d.rolled]));
 }
 
 /* ---------- Q1a · Exhibit 2 feasible plans (dot grid + TEU bar) ---------- */
