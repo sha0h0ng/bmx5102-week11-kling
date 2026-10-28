@@ -1,0 +1,1602 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kling Waiting-List Rule</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@600;700&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one centred report column on a single flat grey plane; structure from rules, not boxes. Light theme only, per the design spec. */
+:root{color-scheme:light;
+  --fs-sm:13px;--fs-base:16px;--fs-md:18px;--fs-lg:22px;--fs-xl:28px;--fs-2xl:36px;--fs-3xl:58px;
+  --plane:#eef1f4;--paper:#f7f9fa;--inset:#e2e8ed;--rule:#d1d9e0;--axis:#b4bec7;
+  --ink:#14181c;--ink-2:#46505a;--ink-3:#7c8792;--sub:#2a78d6;--cas:#e34948;
+  --violet:#5b3fa8;--orange:#eb6834;
+  --hl:#fbe89a;--rec:#c1272d;--rec-ink:#fff;
+  --note-bg:#efeada;--note-brd:#d8cfae;--note-ink:#786321;
+  --aside-bg:#e6efe9;--aside-line:#12674a;--aside-ink:#0f5138;
+  --step-bg:#e4ecf5;--step-line:#1d5390;--step-ink:#17416f;--step-rule:#c8d7e7;
+  --rev-bg:#ece8f6;--rev-line:#5b3fa8;--rev-ink:#4a3190;
+  --wash:rgba(20,24,28,.055);
+  --code-kw:#5b3fa8;--code-str:#12674a;--code-num:#b4481c;--code-fn:#1d5390;--code-com:#7c8792;
+  --extra-bg:#f9e7e6;--extra-line:#e34948;--extra-ink:#a1201f;}
+*{box-sizing:border-box}
+html{background:var(--plane)}
+body{margin:0;background:var(--plane);color:var(--ink);font-family:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:var(--fs-base);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1360px;margin:0 auto;padding-block:44px 96px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+p{margin:0 0 1em}strong,b{font-weight:600}
+a{color:inherit;text-decoration:underline;text-decoration-color:var(--axis);text-underline-offset:2px}a:hover{text-decoration-color:var(--ink)}
+.eyebrow{font-size:var(--fs-sm);font-weight:600;letter-spacing:.02em;color:var(--ink-3);margin:0 0 8px}
+h1{font-family:Chivo,system-ui,sans-serif;font-weight:700;font-size:clamp(32px,4.4vw,var(--fs-3xl));line-height:1.02;letter-spacing:-.03em;margin:0 0 22px;text-wrap:balance}
+.masthead{border-bottom:2px solid var(--ink);padding-bottom:26px}
+.deck{font-size:var(--fs-lg);line-height:1.4;color:var(--ink-2);margin:18px 0 0;max-width:none}
+.deck strong{color:var(--ink);font-weight:600}
+.byline{font-family:Chivo,system-ui,sans-serif;font-size:var(--fs-md);font-weight:600;letter-spacing:-.01em;color:var(--ink-2);margin:12px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:6px 34px;margin-top:18px;font-size:var(--fs-sm);color:var(--ink-3)}
+.meta b{font-weight:600;color:var(--ink-2)}
+.byrole{font-size:var(--fs-sm);color:var(--ink-3);margin:2px 0 0}
+.ghost{border:1px solid var(--rule);background:transparent;color:var(--ink-2);padding:5px 12px;font:inherit;font-size:var(--fs-sm);cursor:pointer;white-space:nowrap;border-radius:0}
+.ghost:hover{background:var(--wash);color:var(--ink)}
+.ghost.tbl[aria-pressed="true"]{background:var(--ink);color:var(--plane);border-color:var(--ink)}
+:where(button,a,[tabindex]):focus-visible{outline:2px solid var(--cas);outline-offset:2px}
+.callout{background:var(--note-bg);border-top:1px solid var(--note-brd);border-bottom:1px solid var(--note-brd);padding:22px 30px 24px;margin:0 0 4px}
+.callout .eyebrow{color:var(--note-ink);margin-bottom:10px}
+.callout p{margin:0 0 .8em;color:var(--ink-2);line-height:1.55}.callout p:last-child{margin-bottom:0}.callout strong{color:var(--ink)}
+.callout.how{background:var(--aside-bg);border-top-color:var(--aside-line);border-bottom-color:var(--aside-line)}.callout.how .eyebrow{color:var(--aside-ink)}
+@media(min-width:1120px){.callout .cols{columns:2;column-gap:52px}.callout .cols p{break-inside:avoid-column}}
+.flow{counter-reset:flow;margin:0;padding:0;list-style:none}
+@media(min-width:1120px){.flow{columns:2;column-gap:52px}}
+.flow li{counter-increment:flow;position:relative;padding-left:34px;margin:0 0 13px;line-height:1.5;color:var(--ink-2);break-inside:avoid}
+.flow li::before{content:counter(flow);position:absolute;left:0;top:0;width:22px;height:22px;display:grid;place-items:center;background:var(--aside-line);color:var(--aside-bg);font-size:12px;font-weight:700}
+.flow li b{color:var(--ink)}.flow .loop::before{background:var(--cas)}
+.objective{padding:34px 0 6px}
+.objective .eyebrow{font-size:var(--fs-base);margin-bottom:14px}
+.objective p{font-family:Chivo,system-ui,sans-serif;font-size:clamp(23px,2.9vw,42px);line-height:1.18;margin:0;font-weight:600;letter-spacing:-.028em;max-width:none}
+.routes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 36px;border-top:1px solid var(--rule);margin:28px 0 20px;padding-top:16px}
+.route{display:flex;flex-direction:column;padding:0 0 16px}
+.route .n{font-size:var(--fs-md);font-weight:600;color:var(--ink-2)}.route .q{line-height:1.4;margin-top:5px;color:var(--ink-2)}
+.route .d{font-size:var(--fs-sm);color:var(--ink-3);margin-top:auto;padding-top:10px}
+.ordernote{background:var(--rev-bg);border-left:3px solid var(--rev-line);padding:18px 24px 20px;margin:0 0 64px}
+.ordernote .eyebrow{color:var(--rev-ink);margin-bottom:8px}
+.ordernote p{margin:0;color:var(--ink-2);line-height:1.55;max-width:none}
+.ordernote strong{color:var(--ink);font-weight:600}
+.ordernote.xref{margin:-6px 0 30px}
+section{margin:0 0 72px}
+.qhead{display:flex;gap:14px;align-items:baseline;margin:0 0 4px}
+.qhead h2{flex:1;min-width:0;text-wrap:wrap;text-wrap-style:auto}
+.qnum{font-family:Chivo,system-ui,sans-serif;font-size:var(--fs-base);font-weight:600;color:var(--cas);flex:none;white-space:nowrap}
+h2{font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:clamp(21px,2.2vw,var(--fs-xl));line-height:1.2;letter-spacing:-.015em;margin:0;text-wrap:balance}
+.qkind{font-size:var(--fs-sm);color:var(--ink-3);margin:0 0 22px;padding-left:31px}
+.revision{background:var(--rev-bg);border-left:3px solid var(--rev-line);padding:16px 20px 18px;margin:0 0 30px}
+.revision .eyebrow{color:var(--rev-ink);margin-bottom:8px}
+.revision ul{margin:0;padding:0;list-style:none;display:grid;gap:7px}
+@media(min-width:1120px){.revision ul{grid-template-columns:repeat(2,1fr);gap:7px 40px}}
+.revision li{font-size:var(--fs-sm);line-height:1.5;color:var(--ink-2);padding-left:18px;position:relative}
+.revision li::before{content:"→";position:absolute;left:0;top:0;color:var(--rev-line);font-weight:700}
+.revision li b{color:var(--ink)}
+#step0 .qnum{color:var(--step-line)}
+.stepnote{background:var(--step-bg);border-left:3px solid var(--step-line);padding:20px 22px 22px;margin:0 0 30px}
+.stepnote p{color:var(--ink-2);line-height:1.55;margin:0 0 14px}.stepnote p:last-child{margin-bottom:0}.stepnote strong{color:var(--ink)}
+.steph{font-size:var(--fs-sm);font-weight:600;letter-spacing:.02em;color:var(--step-ink);margin:4px 0 9px}
+.dtwrap{overflow-x:auto;margin:0 0 22px}
+.dtable{width:100%;border-collapse:collapse;font-size:var(--fs-sm)}
+.dtable th,.dtable td{text-align:left;padding:7px 18px 7px 0;border-bottom:1px solid var(--step-rule);vertical-align:top;line-height:1.45}
+.dtable thead th{font-weight:600;color:var(--step-ink);white-space:nowrap;border-bottom:1px solid var(--step-line)}
+.dtable td{color:var(--ink-2)}
+.dtable tbody tr:last-child td{border-bottom:0}
+.dtable td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+.dtable .num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.checks{display:grid;gap:7px 32px;margin:0 0 22px;padding:0;list-style:none}
+@media(min-width:1120px){.checks{grid-template-columns:repeat(2,1fr)}}
+.checks li{font-size:var(--fs-sm);color:var(--ink-2);line-height:1.45;padding-left:22px;position:relative}
+.checks li::before{content:"\2713";position:absolute;left:0;top:0;color:var(--step-line);font-weight:700}
+.checks li b{color:var(--ink)}
+.drops{margin:0;padding:0;list-style:none;display:grid;gap:7px 32px}
+@media(min-width:1120px){.drops{grid-template-columns:repeat(2,1fr)}}
+.drops li{font-size:var(--fs-sm);color:var(--ink-2);line-height:1.45;padding-left:20px;position:relative}
+.drops li::before{content:"−";position:absolute;left:0;color:var(--step-ink);font-weight:700}
+.drops li b{color:var(--ink)}
+figure{margin:0 0 26px}
+.card{border-top:1px solid var(--ink)}
+.cardhead{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:11px 0 12px}
+.ctitle{font-weight:600;line-height:1.3}.csub{font-size:var(--fs-sm);color:var(--ink-3);line-height:1.35;margin-top:2px}
+.cardhead > div:first-child{min-width:0}
+.cardhead .sp{flex:1 1 auto;min-width:8px}.cardhead .ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+figcaption{font-size:var(--fs-sm);color:var(--ink-3);padding:10px 0 0;line-height:1.55;border-top:1px solid var(--rule)}
+figcaption b{color:var(--ink-2)}
+.plot{padding:4px 0 6px;position:relative}.plot.off{display:none}
+.note{font-size:var(--fs-sm);color:var(--ink-3);margin:6px 0 0}
+.note b{color:var(--ink-2)}
+.xwrap+.note{margin:12px 0 30px;max-width:none}
+.seg{display:inline-flex;border:1px solid var(--rule);overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:transparent;color:var(--ink-2);cursor:pointer;font:inherit;font-size:var(--fs-sm);padding:5px 11px;white-space:nowrap;border-radius:0}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button:hover{background:var(--wash);color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--plane);font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:var(--fs-sm);color:var(--ink-2);padding:6px 0 2px}
+.legend .k{display:inline-flex;align-items:center;gap:7px}
+.legend .k i{width:10px;height:10px;flex:none;display:inline-block}
+.tip{position:absolute;z-index:6;pointer-events:none;opacity:0;transition:opacity .1s;background:var(--inset);border:1px solid var(--ink);padding:8px 11px;font-size:var(--fs-sm);min-width:160px;line-height:1.4}
+.tip .t{font-weight:600;margin-bottom:3px;color:var(--ink)}.tip .r{display:flex;justify-content:space-between;gap:16px;color:var(--ink-2)}
+.tip .r b{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.tableview{display:none;max-height:420px;overflow:auto;padding:0 0 14px}.tableview.on{display:block}
+.tableview table{border-collapse:collapse;font-size:var(--fs-sm);width:100%}
+.tableview th,.tableview td{text-align:right;padding:5px 12px 5px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+.tableview th:first-child,.tableview td:first-child{text-align:left}
+.tableview thead th{position:sticky;top:0;background:var(--plane);color:var(--ink-2);font-weight:600;border-bottom:1px solid var(--ink)}
+.tableview td{font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.takeaway{border-left:3px solid var(--ink);padding:1px 0 1px 18px;margin:0 0 26px}
+.takeaway .eyebrow{margin-bottom:7px}
+.takeaway .lead{font-family:Chivo,system-ui,sans-serif;font-size:var(--fs-lg);line-height:1.24;font-weight:600;letter-spacing:-.018em;color:var(--ink);margin:0 0 12px;text-wrap:wrap;text-wrap-style:auto}
+.takeaway ul:last-child{margin-bottom:0}
+.takeaway ul{margin:0 0 12px;padding:0;list-style:none;display:grid;gap:6px}
+.takeaway li{line-height:1.45;color:var(--ink-2);padding-left:16px;position:relative;max-width:72ch}
+.takeaway li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:1px;background:var(--axis)}
+.takeaway li b{color:var(--ink)}
+.takeaway .leadsub{line-height:1.5;color:var(--ink-2);margin:0}.takeaway .leadsub b{color:var(--ink)}
+@media(min-width:1120px){.takeaway ul{grid-template-columns:repeat(3,1fr);gap:0 40px}}
+mark{background:var(--hl);color:inherit;padding:.06em .18em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.insight{font-family:Chivo,system-ui,sans-serif;font-size:var(--fs-md);line-height:1.6}
+.insight p:last-child{margin-bottom:0}
+@media(min-width:1120px){.insight{columns:2;column-gap:52px}.insight p{break-inside:avoid-column}}
+.xwrap{overflow-x:auto;margin:0 0 26px}
+.xtable{width:100%;border-collapse:collapse;font-size:var(--fs-sm)}
+.xtable th,.xtable td{text-align:right;vertical-align:top;padding:9px 16px 9px 0;border-bottom:1px solid var(--rule);line-height:1.45;font-variant-numeric:tabular-nums}
+.xtable th:first-child,.xtable td:first-child{text-align:left;font-variant-numeric:normal}
+.xtable thead th{font-weight:600;color:var(--ink);border-bottom:1px solid var(--ink)}
+.xtable thead th .th2{display:block;font-weight:400;color:var(--ink-3);font-size:11px;margin-top:2px}
+.xtable td{color:var(--ink-2)}.xtable td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+.xtable tr.hi td{background:var(--wash)}.xtable tr.hi td:first-child{color:var(--cas)}
+.xtable tfoot td{border-bottom:0;border-top:1px solid var(--ink);color:var(--ink);font-weight:600}
+.xtable.txt th,.xtable.txt td{text-align:left;font-variant-numeric:normal}
+.xtable.txt td:first-child{white-space:normal;min-width:150px}
+.xtable .bad{color:var(--cas);font-weight:600}
+.xtable .good{color:var(--sub);font-weight:600}
+.xtable .muted{color:var(--ink-3);font-weight:400;font-size:11px;white-space:nowrap}
+.xtable tfoot td{white-space:normal;font-variant-numeric:normal}
+.approach{margin:0 0 26px;max-width:none}
+.vars{display:block;margin-top:6px;font-size:12px;color:var(--ink-3);line-height:1.5}
+.approach p{font-size:var(--fs-md);line-height:1.55;color:var(--ink-2);margin:0 0 .7em}
+.approach p:last-child{margin-bottom:0}
+.approach b{color:var(--ink)}
+.options{display:grid;gap:26px 0;margin:10px 0 34px}
+@media(min-width:1120px){.options{grid-template-columns:repeat(3,1fr);gap:0 40px}}
+.opt{border-top:1px solid var(--rule);padding:13px 0 0;display:flex;flex-direction:column}
+.opt.rec{border-top:2px solid var(--rec)}
+.optlab{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:var(--fs-sm);font-weight:600;color:var(--ink-3);letter-spacing:.02em;margin:0 0 7px}
+.rectag{background:var(--rec);color:var(--rec-ink);padding:3px 9px}
+.rechead{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;border-top:2px solid var(--ink);padding-top:16px;margin:0 0 16px}
+.rechead .rectag{font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:var(--fs-md);letter-spacing:-.01em;padding:4px 12px}
+.rechead .rechint{font-size:var(--fs-sm);color:var(--ink-3)}
+.recmark{display:inline-block;background:var(--rec);color:var(--rec-ink);font-size:11px;font-weight:600;padding:1px 7px;margin-right:6px;vertical-align:1px}
+.opt h3{font-family:Chivo,system-ui,sans-serif;font-size:var(--fs-md);font-weight:600;line-height:1.25;margin:0 0 9px}
+.opt p{line-height:1.5;color:var(--ink-2);margin:0 0 9px}.opt p:last-child{margin-bottom:0}
+.opt .verdict{margin-top:auto;padding-top:12px;font-size:var(--fs-sm);line-height:1.45}.opt .verdict b{color:var(--ink)}
+footer{border-top:2px solid var(--ink);padding-top:20px;margin-top:8px;font-size:var(--fs-sm);color:var(--ink-3)}
+footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
+@media(min-width:1120px){footer{columns:2;column-gap:52px}footer p{break-inside:avoid-column}}
+@media(max-width:640px){.wrap{padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}.qkind{padding-left:0}.callout{padding:18px 18px 20px}}
+.calc{margin:6px 0 30px}
+.calc>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--aside-bg);border-left:3px solid var(--aside-line);padding:13px 16px;transition:background .15s ease}
+.calc>summary::-webkit-details-marker{display:none}
+.calc>summary:hover{background:#dce9e0}
+.calc>summary .ctitle{color:var(--aside-ink);display:block}
+.calc>summary .csub{display:block}
+.calc .disc{background:var(--aside-line);color:#fff;padding:7px 15px;font-size:var(--fs-sm);font-weight:600;white-space:nowrap}
+.calc .disc::before{content:"Show"}.calc[open] .disc::before{content:"Hide"}
+.calc-body{background:var(--aside-bg);border-left:3px solid var(--aside-line);padding:4px 16px 18px 19px;margin-top:2px}
+.calc-body .flow{columns:1;margin:14px 0 6px}
+.calc-body .flow li{max-width:110ch}
+.code{max-height:560px;background:#f7f9fa;border:1px solid var(--rule);padding:14px 16px;margin:8px 0 0;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;color:var(--ink)}
+.extra{background:var(--extra-bg);border-left:3px solid var(--extra-line);padding:16px 20px 18px;margin:0 0 30px}
+.extra .eyebrow{color:var(--extra-ink);margin-bottom:6px}
+.extra .xlead{font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:var(--fs-md);line-height:1.3;color:var(--ink);margin:0 0 12px;letter-spacing:-.01em}
+.extra ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+@media(min-width:1120px){.extra ul{grid-template-columns:repeat(2,1fr);gap:8px 40px}}
+.extra li{font-size:var(--fs-sm);line-height:1.5;color:var(--ink-2);padding-left:18px;position:relative}
+.extra li::before{content:"+";position:absolute;left:0;top:0;color:var(--extra-line);font-weight:700}
+.extra li b{color:var(--ink)}
+.extra .xdown{margin:14px 0 0;padding-top:12px;border-top:1px solid #f0c3c1;font-size:var(--fs-sm);line-height:1.5;color:var(--ink-2)}
+.extra .xdown b{color:var(--extra-ink)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;border-bottom:2px solid var(--ink);margin:30px 0 0}
+.tabs + section{margin-top:34px}
+.tabs a{display:inline-flex;align-items:center;gap:10px;font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:15px;letter-spacing:-.01em;color:var(--ink-2);text-decoration:none;padding:11px 18px;background:#f7f9fa;border:1px solid var(--axis);border-bottom:0;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+.tabs a::after{content:"→";font-size:15px;color:var(--cas);transition:transform .12s}
+.tabs a:hover{background:#ffffff;color:var(--ink);border-color:var(--ink)}
+.tabs a:hover::after{transform:translateX(3px)}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--plane);border-color:var(--ink);cursor:default}
+.tabs a[aria-current="page"]::after{content:"●";font-size:9px;color:var(--plane);transform:none}
+@media (prefers-reduced-motion:reduce){.tabs a,.tabs a::after{transition:none}}
+.simctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px 40px;border-top:1px solid var(--rule);padding-top:18px}
+.cgroup{min-width:0}
+.clbl{font-size:var(--fs-sm);font-weight:600;letter-spacing:.02em;color:var(--ink-3);margin:0 0 8px}
+.clbl label{cursor:pointer}
+.chint{font-size:12px;color:var(--ink-3);margin:6px 0 0;line-height:1.4}
+.simctl .seg{flex-wrap:nowrap;max-width:100%}
+.seedrow{display:flex;gap:8px;flex-wrap:wrap}
+.seedrow input{font:inherit;font-size:var(--fs-sm);width:120px;padding:5px 9px;border:1px solid var(--rule);background:#f7f9fa;color:var(--ink);border-radius:0;font-variant-numeric:tabular-nums}
+.runrow{display:flex;flex-direction:column;gap:8px}
+.runbtn{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;font:inherit;font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:15px;background:var(--cas);color:#fff;border:1px solid var(--cas);padding:10px 22px;cursor:pointer;border-radius:0;transition:background .12s,border-color .12s}
+.runbtn::before{content:"\25B6";font-size:11px}
+.runbtn:hover{background:var(--rec);border-color:var(--rec)}
+.runbtn:disabled{background:var(--ink-3);border-color:var(--ink-3);cursor:wait}
+.progress{height:3px;background:var(--rule);max-width:420px}
+.progress .bar{height:3px;width:0;background:var(--cas);transition:width .18s ease}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px 40px;border-top:1px solid var(--ink);padding-top:16px;margin:0 0 34px}
+.kpi .n{font-family:Chivo,system-ui,sans-serif;font-weight:700;font-size:34px;letter-spacing:-.028em;line-height:1;font-variant-numeric:tabular-nums}
+.kpi .n.red{color:var(--cas)}.kpi .n.blue{color:var(--sub)}.kpi .n.violet{color:var(--violet)}
+.kpi .l{font-size:var(--fs-sm);color:var(--ink-3);margin-top:7px;line-height:1.4}
+.codewrap{position:relative;margin:8px 0 0}
+.codewrap .code{margin:0;padding-top:40px}
+.copybtn{position:absolute;top:8px;right:8px;z-index:2;background:#f7f9fa}
+.copybtn[data-state="done"]{background:var(--ink);color:var(--plane);border-color:var(--ink)}
+.code .hljs-comment{color:var(--code-com);font-style:italic}
+.code .hljs-keyword,.code .hljs-literal{color:var(--code-kw);font-weight:600}
+.code .hljs-string,.code .hljs-subst{color:var(--code-str)}
+.code .hljs-number{color:var(--code-num)}
+.code .hljs-built_in,.code .hljs-title,.code .hljs-title.function_{color:var(--code-fn)}
+.code .hljs-meta{color:var(--code-com)}
+@media (prefers-reduced-motion:reduce){.calc>summary{transition:none}}
+@media (prefers-reduced-motion:reduce){.tip{transition:none}.progress .bar{transition:none}}
+</style>
+
+<div class="wrap">
+
+<div id="view-report">
+<header class="masthead">
+  <p class="eyebrow">BMX5102 Business Analytics · Optimisation case · Kling Shipping</p>
+  <h1>Who sails when the ship is full</h1>
+  <p class="deck">A waiting-list rule Kling's booking system can run on every voyage without a clerk. It <strong>fills the ship</strong>, <strong>never rolls a customer a second time</strong>, and can be explained to any customer in one sentence.</p>
+  <p class="byline">Peh Shao Hong (A0077294U)</p>
+  <p class="byrole">Written in the role of Chen Yong, Head of the Digital Systems Office</p>
+  <div class="meta">
+    <span><b>Route</b> Shanghai → Abidjan, weekly</span>
+    <span><b>Voyages tested</b> SA2612E (Exhibit 2) · SA2618E (Exhibit 3)</span>
+    <span><b>Approach</b> rank the goals, then solve them one at a time (see Q2)</span>
+  </div>
+</header>
+
+<aside class="callout">
+  <p class="eyebrow">About this page</p>
+  <div class="cols">
+    <p>Kling Shipping is moving container bookings online. When a ship is full, new bookings go onto a <strong>waiting list</strong>. Just before the container-yard cut-off, operations confirm how much space is left, and the system must decide who on the list sails and who is <strong>rolled</strong> to next week's ship. Management's one firm principle: being rolled once is acceptable, being rolled twice is a serious service failure.</p>
+    <p>This page answers the six assignment questions in order, using the two waiting lists in the case: <strong>Exhibit 2</strong> (10 TEU free, 5 bookings) and <strong>Exhibit 3</strong> (200 TEU free, 22 bookings). Every number was checked by enumeration or solved exactly. The charts are live: switch the controls to compare rules, and press <strong>Table</strong> on any chart to see the data behind it. A second tab, <strong>Simulation</strong>, tests the two extra steps (cargo class and opt-in splitting) on hundreds of random waiting lists.</p>
+  </div>
+</aside>
+
+<aside class="callout how">
+  <p class="eyebrow">How this was made</p>
+  <p>Six steps, in this order. The model was the easy part; most of the work was deciding what "best" and "fair" should mean.</p>
+  <ol class="flow">
+    <li><b>Frame the request.</b> A rule the system runs on every voyage, not one answer for one ship. VIP customers are served upstream, so the waiting list shares only the leftovers.</li>
+    <li><b>Write the three sentences.</b> Objective, decisions and constraints, with the objective as a ranked list because the goals compete, and cargo type as a tie-break.</li>
+    <li><b>Build and test rules.</b> Priority-first, utilisation-first and a tiered optimal rule, solved exactly on both exhibits.</li>
+    <li class="loop"><b>Challenge fairness.</b> Customers who chose a voyage lose out to customers rolled into it. We tested native-first and went back to step 3.</li>
+    <li><b>Price the trade-offs.</b> TEU left empty, customers rolled, and second rollovers caused, for every rule.</li>
+    <li><b>Look beyond the algorithm.</b> Deposits, paid guaranteed space, transparency, and a pilot with KPIs.</li>
+  </ol>
+</aside>
+
+<nav class="tabs" aria-label="Page views">
+  <a href="#report" data-view="report">Case report</a>
+  <a href="#simulation" data-view="simulation">Simulation: cargo class and splitting</a>
+</nav>
+
+<div class="objective">
+  <p class="eyebrow">Research objective</p>
+  <p>Design a waiting-list rule that fills each voyage as fully as possible, never rolls a customer a second time, and treats customers who chose a voyage fairly against customers rolled into it.</p>
+</div>
+
+<div class="routes">
+  <div class="route"><div class="n">Q1 · Objectives</div><div class="q">What should the rule pursue, and where do fill and fairness conflict?</div><div class="d">Pareto view · fairness between customers</div></div>
+  <div class="route"><div class="n">Q2 · Model</div><div class="q">The single-voyage decision as an optimisation model.</div><div class="d">0-1 integer linear program</div></div>
+  <div class="route"><div class="n">Q3 · Two rules</div><div class="q">Priority-first and utilisation-first on SA2612E (Exhibit 2).</div><div class="d">Exhibit 2 · what to tell each stakeholder</div></div>
+  <div class="route"><div class="n">Q4 · The principle</div><div class="q">Hard constraint, priority ordering or penalty?</div><div class="d">Three methods of multi-objective optimisation</div></div>
+  <div class="route"><div class="n">Q5 · Splitting</div><div class="q">Should bookings be divisible?</div><div class="d">Opt-in policy</div></div>
+  <div class="route"><div class="n">Q6 · Behaviour</div><div class="q">How customers will game the rule, and what else Kling should do.</div><div class="d">Deposits · paid priority · transparency</div></div>
+</div>
+
+<!-- ================= STEP 0 · DATA ================= -->
+<section id="step0">
+  <div class="qhead"><div class="qnum">0</div><h2>What is on the two waiting lists?</h2></div>
+  <p class="qkind">A question of inputs. It decides what any rule has to work with.</p>
+
+  <div class="stepnote">
+    <p class="steph">What is in the exhibits</p>
+    <div class="dtwrap"><table class="dtable">
+      <thead><tr><th>Exhibit</th><th>Voyage</th><th class="num">Final space</th><th class="num">Bookings</th><th class="num">TEU requested</th><th>Already rolled</th><th>Role here</th></tr></thead>
+      <tbody>
+        <tr><td>Exhibit 2</td><td>SA2612E</td><td class="num">10 TEU</td><td class="num">5</td><td class="num">24</td><td>Sahel Minerals, once</td><td>Small and sharp: shows the conflict at its clearest</td></tr>
+        <tr><td>Exhibit 3</td><td>SA2618E</td><td class="num">200 TEU</td><td class="num">22</td><td class="num">248</td><td>4 bookings twice, 3 once</td><td>Realistic scale: tests whether the conflict survives</td></tr>
+      </tbody>
+    </table></div>
+    <p class="steph">Checks that had to pass</p>
+    <ul class="checks">
+      <li><b>TEU = 2 × 40-ft + 1 × 20-ft</b> for all 27 bookings, matching every exhibit figure.</li>
+      <li><b>Totals match the case:</b> 24 TEU in Exhibit 2, 248 TEU in Exhibit 3.</li>
+      <li><b>Exhibit 3 groups:</b> 41 TEU rolled twice, 55 TEU rolled once, 152 TEU new.</li>
+      <li><b>All 32 combinations</b> of Exhibit 2's five bookings checked one by one.</li>
+      <li><b>Exhibit 3 solved exactly:</b> HiGHS with a zero optimality gap, one stage at a time.</li>
+      <li><b>Booking order</b> taken from the exhibits, earliest booking first.</li>
+    </ul>
+    <p class="steph">What was set aside</p>
+    <ul class="drops">
+      <li><b>Freight rates.</b> The case gives none, so revenue is measured in TEU.</li>
+      <li><b>Cargo weight and slot-level stowage.</b> A 40-ft box needs a 40-ft slot; these sit inside operations' buffer.</li>
+      <li><b>Reefer and hazardous-cargo limits.</b> Not in the exhibits; they would add constraints (a multi-dimensional knapsack).</li>
+      <li><b>Shanghai and Ningbo as separate load ports.</b> Treated as one pool of space, as in the case.</li>
+    </ul>
+  </div>
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">Exhibit 3 · SA2618E waiting list · 200 TEU free</div>
+          <div class="csub">TEU requested by each of the 22 bookings, in booking order</div>
+        </div>
+        <span class="sp"></span>
+        <div class="ctl" id="ctl-wl"></div>
+        <button class="ghost tbl" type="button" data-for="wl" aria-pressed="false">Table</button>
+      </div>
+      <div class="plot" id="plot-wl"></div>
+      <div class="tableview" id="tv-wl"></div>
+      <figcaption>Each bar is one booking. Colour shows either how many times the booking has already been rolled or its cargo class (1 medical, 2 spare parts for machines in service, 3 everything else). <b>Switch the colour to see that urgent cargo sits in both the rolled and the new groups.</b></figcaption>
+    </div>
+  </figure>
+</section>
+
+<!-- ================= Q1 ================= -->
+<section id="q1">
+  <div class="qhead"><div class="qnum">1</div><h2>What should the rule pursue, and where do fill and fairness conflict?</h2></div>
+  <p class="qkind">A question of objectives. It decides what "a better assignment" means before any model is built.</p>
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">Exhibit 2 · every plan that fits SA2612E · 10 TEU free</div>
+          <div class="csub">Each row is one way to fill the 10 free TEU: which bookings sail, and how full the ship is</div>
+        </div>
+        <span class="sp"></span>
+        <div class="ctl" id="ctl-plans"></div>
+        <button class="ghost tbl" type="button" data-for="plans" aria-pressed="false">Table</button>
+      </div>
+      <div class="plot" id="plot-plans"></div>
+      <div class="tableview" id="tv-plans"></div>
+      <figcaption>Read each row left to right. A filled dot means that booking sails on SA2612E (Exhibit 2); an empty circle means it rolls to next week. The bar shows the TEU loaded: blue when Sahel Minerals (violet, already rolled once) sails, red when Sahel is rolled a second time. A plan is Pareto-optimal when no other plan loads more TEU without rolling Sahel again. Exhibit 3 is not drawn this way: its 22 bookings give 2²² = 4,194,304 possible combinations, so the Recommendation section compares it rule by rule instead. <b>Show only the Pareto-optimal plans to see the choice management actually faces.</b></figcaption>
+    </div>
+  </figure>
+
+  <aside class="ordernote xref">
+    <p class="eyebrow">Which plan should Kling pick?</p>
+    <p>This chart only shows that the clash exists: two plans are Pareto-optimal and no plan does both. <strong>Choosing between them, and what to tell the commercial director and Sahel Minerals, is answered in <a href="#q3">Q3</a>.</strong></p>
+  </aside>
+
+  <div class="takeaway">
+    <p class="eyebrow">Key findings</p>
+    <p class="lead">Rank the goals: never roll a customer twice, then fill the ship. They only clash when space is tight.</p>
+    <ul>
+      <li><b>Objectives, in order:</b> no second rollover → full ship → urgent cargo → booking order → whole consignments.</li>
+      <li><b>"Better" means</b> winning on the <b>first</b> goal where two plans differ, checked over several voyages.</li>
+      <li><b>The clash:</b> on SA2612E (Exhibit 2), filling <b>10 TEU</b> rolls Sahel twice; keeping the promise caps the load at <b>8 TEU</b>. Q3 picks between them.</li>
+    </ul>
+    <p class="leadsub"><b>A second clash, between customers:</b> those who chose this voyage vs those rolled into it. Rollover priority wins because <b>everyone waits at most once</b> (tested in the recommendation below).</p>
+  </div>
+
+  <div class="insight">
+    <p><b>Ranking the goals is the management decision;</b> the solver follows whatever order it is given. <mark>Fill and fairness collide only when the free space is small compared with the bookings</mark>, as on SA2612E (Exhibit 2), where no plan does both.</p>
+    <p><b>Fairness between customers is the harder call.</b> Rolled bookings never take confirmed space; they only order the waiting list. <mark>Under rollover priority everyone waits at most once; under native-first some never wait and others wait twice.</mark> Customers who chose a voyage get information and choice instead: the real queue at booking, free cancellation, and paid guaranteed space.</p>
+  </div>
+</section>
+
+<!-- ================= Q2 ================= -->
+<section id="q2">
+  <div class="qhead"><div class="qnum">2</div><h2>How do we write the single-voyage decision as an optimisation model?</h2></div>
+  <p class="qkind">A question of formulation. It asks for four things: the decision variables, the capacity constraint, the objective function(s) and the class of problem.</p>
+
+  <div class="approach">
+    <p class="eyebrow">Approach</p>
+    <p>We model this as <b>multi-objective optimisation</b>. Kling has several goals that compete: never roll a customer a second time, fill the ship, let urgent cargo through, and respect booking order. No single plan is best on all of them, as SA2612E (Exhibit 2) shows.</p>
+    <p>Underneath, the model is a <b>0-1 integer linear program</b>: one yes/no variable per booking and one capacity constraint. To handle the competing goals we use <b>lexicographic optimisation</b>: we rank the goals, solve one 0-1 integer program per goal in that order, and lock in each optimum before solving the next. The utilisation-only version, with TEU as the single goal, is shown alongside for comparison.</p>
+  </div>
+
+  <aside class="extra">
+    <p class="eyebrow">Beyond the case · an extra step we added</p>
+    <p class="xlead">We added cargo type as a goal of its own. The case only asks about rollovers and space.</p>
+    <ul>
+      <li><b>Why.</b> A week's delay does not cost every customer the same. Hospital beds, or excavator parts that leave a site idle, hurt far more than furniture. Rollover counts and TEU cannot see that difference.</li>
+      <li><b>How it is classified.</b> From the declared commodity, checked against the shipping documents, never from a customer saying "urgent": 1 medical, 2 spare parts for machines already in service, 3 everything else.</li>
+      <li><b>Where it ranks.</b> After TEU, so it only chooses between plans that are equally full. It never costs space and never breaks the no-second-rollover promise.</li>
+      <li><b>What it changed.</b> Nothing in Exhibits 2 or 3: every medical and spare-parts booking already sails. Across hundreds of simulated waiting lists, though, it changes the plan in most of them. <a href="#simulation">See the Simulation tab</a>.</li>
+    </ul>
+    <p class="xdown"><b>The downside.</b> Cargo classes only work once Kling has set them up and agreed them: a written definition of each class, agreement from the commercial team, and terms customers accept at booking. Even then the line is partly subjective. Irrigation equipment, generators, telecom equipment and tyres could each be argued into a higher class, so borderline cases need a named owner to decide them, and customers will dispute the result.</p>
+  </aside>
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th>Asked for</th><th>Answer<span class="th2">general model, for each booking i on the voyage's waiting list W</span></th><th>Written out for SA2618E (Exhibit 3)<span class="th2">22 bookings, x₁ to x₂₂ in booking order</span></th></tr></thead>
+    <tbody>
+      <tr><td>Given data</td><td><i>tᵢ</i> = TEU of booking i = 2 × (40-ft boxes) + (20-ft boxes)<br><i>rᵢ</i> = times booking i has already been rolled<br><i>kᵢ</i> = cargo class (1 medical, 2 spare parts, 3 standard)<br><i>C</i> = final space confirmed by operations (TEU)</td><td><i>t</i> = (12, 6, 16, 7, 14, 23, 18, 11, 6, 9, 6, 7, 10, 14, 5, 8, 5, 5, 8, 20, 14, 24)<br><i>r</i> = (2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)<br><i>k</i> = (3, 1, 3, 2, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 1, 3, 3, 3, 3, 2, 3, 3)<br><i>C</i> = 200</td></tr>
+      <tr><td>1 · Decision variables</td><td><b><i>xᵢ</i> ∈ {0, 1}</b> for every i ∈ W<br><i>xᵢ</i> = 1: load booking i on this voyage<br><i>xᵢ</i> = 0: roll it to the next voyage</td><td><i>x</i>₁, <i>x</i>₂, …, <i>x</i>₂₂ ∈ {0, 1}<br><span class="vars"><i>x</i>₁ Bamako Cement, <i>x</i>₂ Yamoussoukro Pharma, <i>x</i>₃ Zhejiang Solar, <i>x</i>₄ San-Pédro Auto Parts, <i>x</i>₅ Ouagadougou Agri-Inputs, <i>x</i>₆ Hengda Building, <i>x</i>₇ Côte Ouest Telecom, <i>x</i>₈ Atlantic Foodstuff, <i>x</i>₉ Guangzhou Furniture, <i>x</i>₁₀ Abidjan Electro, <i>x</i>₁₁ Lagune Printing, <i>x</i>₁₂ Korhogo Cotton, <i>x</i>₁₃ Shandong Tyre, <i>x</i>₁₄ Bouaké Construction, <i>x</i>₁₅ Ivoire Medical, <i>x</i>₁₆ Yiwu Commodities, <i>x</i>₁₇ Daloa Motorcycles, <i>x</i>₁₈ Treichville Textile, <i>x</i>₁₉ Mali Transit, <i>x</i>₂₀ Xiamen Heavy, <i>x</i>₂₁ Plateau Retail, <i>x</i>₂₂ Jiangsu Cable</span></td></tr>
+      <tr><td>2 · Capacity constraint</td><td><b>Σ<sub>i ∈ W</sub> <i>tᵢ xᵢ</i> ≤ <i>C</i></b><br>Total TEU loaded must not exceed the space operations confirmed. "Whole booking or nothing" needs no extra constraint: it is built into <i>xᵢ</i> ∈ {0, 1}.</td><td>12<i>x</i>₁ + 6<i>x</i>₂ + 16<i>x</i>₃ + 7<i>x</i>₄ + 14<i>x</i>₅ + 23<i>x</i>₆ + 18<i>x</i>₇ + 11<i>x</i>₈ + 6<i>x</i>₉ + 9<i>x</i>₁₀ + 6<i>x</i>₁₁ + 7<i>x</i>₁₂ + 10<i>x</i>₁₃ + 14<i>x</i>₁₄ + 5<i>x</i>₁₅ + 8<i>x</i>₁₆ + 5<i>x</i>₁₇ + 5<i>x</i>₁₈ + 8<i>x</i>₁₉ + 20<i>x</i>₂₀ + 14<i>x</i>₂₁ + 24<i>x</i>₂₂ ≤ 200</td></tr>
+      <tr><td>3 · Objective function(s)</td><td><b>Utilisation-first (one objective):</b> max Σ<sub>i</sub> <i>tᵢ xᵢ</i><br><br><b>Priority (several objectives, in order):</b><br><i>f</i>₁ = max Σ<sub>rᵢ ≥ 2</sub> <i>xᵢ</i> (rolled twice or more)<br><i>f</i>₂ = max Σ<sub>rᵢ = 1</sub> <i>xᵢ</i> (rolled once)<br><i>f</i>₃ = max Σ<sub>i</sub> <i>tᵢ xᵢ</i> (TEU loaded)<br><i>f</i>₄ = max Σ<sub>kᵢ = 1</sub> <i>xᵢ</i>, then Σ<sub>kᵢ = 2</sub> <i>xᵢ</i> (urgent cargo)<br>then booking order as the tie-break.<br>Each optimum <i>f</i>ₖ* is added as a constraint <i>f</i>ₖ ≥ <i>f</i>ₖ* before the next stage is solved.</td><td><b>Utilisation-first:</b> max Σ <i>tᵢ xᵢ</i> → value 200, but many plans reach it. The one the solver returned rolls <i>x</i>₁ Bamako Cement (rolled 2× before), <i>x</i>₂ Yamoussoukro Pharma (rolled 2× before), <i>x</i>₉ Guangzhou Furniture, <i>x</i>₂₂ Jiangsu Cable.<br><br><b>Priority:</b><br><i>f</i>₁ = max <i>x</i>₁ + <i>x</i>₂ + <i>x</i>₃ + <i>x</i>₄ → 4<br><i>f</i>₂ = max <i>x</i>₅ + <i>x</i>₆ + <i>x</i>₇ → 3<br><i>f</i>₃ = max Σ <i>tᵢ xᵢ</i> → 200<br><i>f</i>₄ = max <i>x</i>₂ + <i>x</i>₁₅ → 2, then max <i>x</i>₄ + <i>x</i>₁₂ + <i>x</i>₂₀ → 3<br>Tie-break rolls <i>x</i>₁₇ Daloa Motorcycles, <i>x</i>₁₈ Treichville Textile, <i>x</i>₂₁ Plateau Retail, <i>x</i>₂₂ Jiangsu Cable.</td></tr>
+      <tr><td>4 · Class of problem</td><td>A <b>0-1 integer linear program</b> (binary integer program): linear objective and constraint, variables restricted to 0 or 1. Its structure is the <b>0-1 knapsack problem</b>; with TEU as the only goal it is the <b>subset-sum problem</b>. With ranked goals it is a <b>multi-objective 0-1 integer linear program</b>, solved by <b>lexicographic optimisation</b>, which returns a Pareto-optimal plan.</td><td><b>Not an LP.</b> The LP relaxation (0 ≤ <i>xᵢ</i> ≤ 1) would allow fractional answers such as <i>x</i>₂₂ = 0.5, shipping half of Jiangsu Cable's 24 TEU, which the rule forbids. With 22 binary variables there are 2²² = 4,194,304 possible plans.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="approach">
+    <p class="eyebrow">The priority model at work, stage by stage</p>
+    <p>This table runs the priority model on both voyages. For each goal, in priority order, it shows what the solver achieved and the most that goal could ever reach: every booking in that group, or all of the free space. Where the two numbers match, the goal was met in full. Where they differ, a higher-ranked goal forced it to give way.</p>
+  </div>
+
+  <div class="xwrap"><table class="xtable">
+    <thead><tr><th>Stage · goal, in priority order</th><th>SA2612E (Exhibit 2) achieved<span class="th2">10 TEU free</span></th><th>SA2612E (Exhibit 2) best possible</th><th>SA2618E (Exhibit 3) achieved<span class="th2">200 TEU free</span></th><th>SA2618E (Exhibit 3) best possible</th><th>SA2618E (Exhibit 3) without cargo class<span class="th2">stages 4 and 5 removed</span></th></tr></thead>
+    <tbody>
+      <tr><td>1 · Bookings rolled twice or more, loaded</td><td>–</td><td>none on the list</td><td>4</td><td>4</td><td>4</td></tr>
+      <tr><td>2 · Bookings rolled once, loaded</td><td>1</td><td>1</td><td>3</td><td>3</td><td>3</td></tr>
+      <tr class="hi"><td>3 · TEU loaded</td><td><b>8</b></td><td>10</td><td>200</td><td>200</td><td>200</td></tr>
+      <tr><td>4 · Medical (class 1) bookings, loaded</td><td>–</td><td>none on the list</td><td>2</td><td>2</td><td>2 <span class="muted">(not a goal; load anyway)</span></td></tr>
+      <tr><td>5 · Spare-parts (class 2) bookings, loaded</td><td>1</td><td>1</td><td>3</td><td>3</td><td>3 <span class="muted">(not a goal; load anyway)</span></td></tr>
+    </tbody>
+    <tfoot><tr><td>Rolled to the next voyage</td><td>Atlas, Abidjan General, Fujian</td><td>–</td><td>Daloa, Treichville, Plateau, Jiangsu</td><td>–</td><td>Daloa, Treichville, Plateau, Jiangsu</td></tr></tfoot>
+  </table></div>
+  <p class="note"><b>How to read it.</b> On SA2612E (Exhibit 2), keeping Sahel costs <b>2 TEU</b>: only 8 of 10 load. On SA2618E (Exhibit 3), <b>every goal is met in full</b>. Without cargo class (last column) the plan is <b>exactly the same</b> here, but not on most simulated waiting lists: <a href="#simulation">see the Simulation tab</a>. Solved stage by stage in PuLP with HiGHS.</p>
+  <details class="calc">
+    <summary><span><span class="ctitle">Show the Python code for this table</span><span class="csub">Loads either exhibit, builds the Q2 model and solves it stage by stage: pandas, PuLP 4.2 and HiGHS</span></span><span class="disc" aria-hidden="true"></span></summary>
+    <div class="calc-body">
+      <ol class="flow">
+        <li><b>Load the waiting list.</b> Both exhibits are in the code; set <b>EXHIBIT</b> to 2 or 3. TEU is worked out from the container counts and checked against the exhibit total.</li>
+        <li><b>Build the Q2 model.</b> One binary variable per booking and the capacity constraint.</li>
+        <li><b>Solve one stage at a time.</b> Each stage maximises one goal; its optimum is the "achieved" number in the table.</li>
+        <li><b>Lock it in.</b> The optimum becomes a constraint, so later stages can never undo it.</li>
+        <li><b>Break ties by booking order.</b> Keep each booking, earliest first, if every locked stage can still be met.</li>
+      </ol>
+      <pre class="code"><code>import pandas as pd
+import pulp
+
+# ---------- 1. Load the waiting list ----------
+EXHIBIT = 3  # 2 = SA2612E (10 TEU free), 3 = SA2618E (200 TEU free)
+
+# each row: booking, customer, 40-ft boxes, 20-ft boxes, times rolled, cargo class
+# fmt: off
+DATA = {
+    2: dict(C=10, rows=[
+        (&quot;WL-8871&quot;, &quot;Sahel Minerals&quot;,           3, 0, 1, 2),
+        (&quot;WL-8874&quot;, &quot;Atlas Agro&quot;,               1, 3, 0, 3),
+        (&quot;WL-8876&quot;, &quot;Abidjan General&quot;,          3, 0, 0, 3),
+        (&quot;WL-8879&quot;, &quot;Ivoire Textile&quot;,           0, 2, 0, 3),
+        (&quot;WL-8880&quot;, &quot;Fujian Machinery&quot;,         2, 1, 0, 3),
+    ]),
+    3: dict(C=200, rows=[
+        (&quot;WL-9031&quot;, &quot;Bamako Cement&quot;,            6, 0, 2, 3),
+        (&quot;WL-9036&quot;, &quot;Yamoussoukro Pharma&quot;,      2, 2, 2, 1),
+        (&quot;WL-9042&quot;, &quot;Zhejiang Solar&quot;,           8, 0, 2, 3),
+        (&quot;WL-9047&quot;, &quot;San-Pédro Auto Parts&quot;,     3, 1, 2, 2),
+        (&quot;WL-9105&quot;, &quot;Ouagadougou Agri-Inputs&quot;,  7, 0, 1, 3),
+        (&quot;WL-9112&quot;, &quot;Hengda Building&quot;,         10, 3, 1, 3),
+        (&quot;WL-9118&quot;, &quot;Côte Ouest Telecom&quot;,       8, 2, 1, 3),
+        (&quot;WL-9203&quot;, &quot;Atlantic Foodstuff&quot;,       4, 3, 0, 3),
+        (&quot;WL-9205&quot;, &quot;Guangzhou Furniture&quot;,      3, 0, 0, 3),
+        (&quot;WL-9208&quot;, &quot;Abidjan Electro&quot;,          4, 1, 0, 3),
+        (&quot;WL-9211&quot;, &quot;Lagune Printing&quot;,          0, 6, 0, 3),
+        (&quot;WL-9214&quot;, &quot;Korhogo Cotton&quot;,           2, 3, 0, 2),
+        (&quot;WL-9216&quot;, &quot;Shandong Tyre&quot;,            5, 0, 0, 3),
+        (&quot;WL-9219&quot;, &quot;Bouaké Construction&quot;,      6, 2, 0, 3),
+        (&quot;WL-9223&quot;, &quot;Ivoire Medical&quot;,           1, 3, 0, 1),
+        (&quot;WL-9225&quot;, &quot;Yiwu Commodities&quot;,         4, 0, 0, 3),
+        (&quot;WL-9228&quot;, &quot;Daloa Motorcycles&quot;,        2, 1, 0, 3),
+        (&quot;WL-9230&quot;, &quot;Treichville Textile&quot;,      0, 5, 0, 3),
+        (&quot;WL-9233&quot;, &quot;Mali Transit&quot;,             3, 2, 0, 3),
+        (&quot;WL-9236&quot;, &quot;Xiamen Heavy&quot;,            10, 0, 0, 2),
+        (&quot;WL-9239&quot;, &quot;Plateau Retail&quot;,           7, 0, 0, 3),
+        (&quot;WL-9241&quot;, &quot;Jiangsu Cable&quot;,           12, 0, 0, 3),
+    ]),
+}
+# fmt: on
+
+df = pd.DataFrame(
+    DATA[EXHIBIT][&quot;rows&quot;],
+    columns=[&quot;booking&quot;, &quot;customer&quot;, &quot;n40&quot;, &quot;n20&quot;, &quot;rolled&quot;, &quot;cls&quot;],
+).set_index(&quot;booking&quot;)
+df[&quot;teu&quot;] = 2 * df[&quot;n40&quot;] + df[&quot;n20&quot;]  # a 40-ft box takes 2 TEU, a 20-ft box 1
+assert df[&quot;teu&quot;].sum() == {2: 24, 3: 248}[EXHIBIT]  # matches the exhibit&#x27;s total
+
+C = DATA[EXHIBIT][&quot;C&quot;]  # final space confirmed by operations
+W = list(df.index)  # bookings, in booking order
+t = df[&quot;teu&quot;].to_dict()  # TEU per booking
+r = df[&quot;rolled&quot;].to_dict()  # times already rolled
+k = df[&quot;cls&quot;].to_dict()  # cargo class: 1 medical, 2 spare parts, 3 standard
+
+
+# ---------- 2. The Q2 model ----------
+def build_model(locked, fixed_x):
+    &quot;&quot;&quot;One 0-1 ILP: a binary variable per booking, the capacity constraint,
+    every stage value locked so far, and any decisions fixed by the tie-break.&quot;&quot;&quot;
+    m = pulp.LpProblem(&quot;Kling&quot;, pulp.LpMaximize)
+    x = {i: m.add_variable(f&quot;x_{i}&quot;, cat=&quot;Binary&quot;) for i in W}  # decision variables
+    m += pulp.lpSum(t[i] * x[i] for i in W) &lt;= C  # capacity constraint
+    for f, best in locked:
+        m += f(x) &gt;= best  # lock earlier stages
+    for i, v in fixed_x.items():
+        m += x[i] == v
+    return m, x
+
+
+# ---------- 3. Objectives, in priority order ----------
+STAGES = [
+    (
+        &quot;Rolled twice or more, loaded&quot;,
+        lambda x: pulp.lpSum(x[i] for i in W if r[i] &gt;= 2),
+    ),
+    (&quot;Rolled once, loaded&quot;, lambda x: pulp.lpSum(x[i] for i in W if r[i] == 1)),
+    (&quot;TEU loaded&quot;, lambda x: pulp.lpSum(t[i] * x[i] for i in W)),
+    (&quot;Medical (class 1), loaded&quot;, lambda x: pulp.lpSum(x[i] for i in W if k[i] == 1)),
+    (
+        &quot;Spare parts (class 2), loaded&quot;,
+        lambda x: pulp.lpSum(x[i] for i in W if k[i] == 2),
+    ),
+]
+SOLVER = pulp.HiGHS(msg=False, gapRel=0)  # gapRel=0: prove the exact optimum
+
+# ---------- 4. Lexicographic optimisation ----------
+locked, fixed_x = [], {}
+for name, f in STAGES:  # one 0-1 ILP per stage
+    m, x = build_model(locked, fixed_x)
+    m += f(x)  # this stage&#x27;s objective
+    m.solve(SOLVER)
+    best = round(pulp.value(m.objective))  # the &quot;achieved&quot; column
+    locked.append((f, best))  # every later stage must keep this
+    print(f&quot;{name}: {best}&quot;)
+
+# ---------- 5. Booking-order tie-break ----------
+for i in W:
+    m, x = build_model(locked, {**fixed_x, i: 1})
+    stats = m.solve(SOLVER)  # can booking i still sail?
+    fixed_x[i] = 1 if stats.status == pulp.LpSolveStatus.Optimal else 0
+
+df[&quot;decision&quot;] = df.index.map(lambda i: &quot;load&quot; if fixed_x[i] else &quot;roll&quot;)
+print(df[[&quot;customer&quot;, &quot;teu&quot;, &quot;rolled&quot;, &quot;cls&quot;, &quot;decision&quot;]])</code></pre>
+      <p class="note">"Best possible" is the number of bookings in that group, or the free space <i>C</i> for TEU. The full script is <b>kling_moo_exhibit3.py</b>.</p>
+    </div>
+  </details>
+
+  <div class="takeaway">
+    <p class="eyebrow">Answer</p>
+    <p class="lead">One binary variable per booking, one capacity constraint, and either one objective (TEU) or a ranked list of objectives: a 0-1 integer linear program with the structure of a 0-1 knapsack problem.</p>
+    <ul>
+      <li><b>Decision variables:</b> <i>xᵢ</i> ∈ {0, 1}, load or roll. <b>5</b> on SA2612E (Exhibit 2), <b>22</b> on SA2618E (Exhibit 3).</li>
+      <li><b>Capacity constraint:</b> Σ <i>tᵢ xᵢ</i> ≤ <i>C</i>, with <i>C</i> = <b>10</b> TEU on SA2612E (Exhibit 2) and <b>200</b> TEU on SA2618E (Exhibit 3).</li>
+      <li><b>Class:</b> 0-1 integer linear program (0-1 knapsack); <b>multi-objective</b> once the goals are ranked, solved by lexicographic optimisation.</li>
+    </ul>
+  </div>
+
+  <div class="insight">
+    <p><b>What class of problem is it?</b> <mark>A 0-1 integer linear program with the structure of the 0-1 knapsack problem.</mark> Because its goals compete, it is <b>multi-objective</b>, solved by <b>lexicographic optimisation</b>: a sequence of 0-1 integer programs, one per goal.</p>
+    <p><b>Why not an LP?</b> An LP decides <b>how much</b>; a 0-1 integer program decides <b>whether</b>. A booking sails whole or not at all, so every variable is binary. <mark>Rounding an LP answer can fail, and shadow prices stop being meaningful.</mark></p>
+    <p><b>How it extends.</b> Weight or reefer limits would add constraints: a <b>multi-dimensional knapsack</b>. Opt-in splits would turn each variable into a whole-container count: still an <b>integer program</b>.</p>
+  </div>
+</section>
+
+<!-- ================= Q3 ================= -->
+<section id="q3">
+  <div class="qhead"><div class="qnum">3</div><h2>Which bookings do the two rules load on SA2612E (Exhibit 2), and which outcome can we defend?</h2></div>
+  <p class="qkind">A question of application. It decides what we say to the commercial director and to Sahel Minerals.</p>
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">Exhibit 2 · how each rule fills SA2612E · 10 TEU free</div>
+          <div class="csub">Bookings loaded on SA2612E (Exhibit 2), and who rolls to SA2613E</div>
+        </div>
+        <span class="sp"></span>
+        <div class="ctl" id="ctl-cap2"></div>
+        <button class="ghost tbl" type="button" data-for="cap2" aria-pressed="false">Table</button>
+      </div>
+      <div class="plot" id="plot-cap2"></div>
+      <div class="tableview" id="tv-cap2"></div>
+      <figcaption>Violet is Sahel Minerals, already rolled once; blue are new bookings; the dashed box is space that sails empty. Red names below a bar are customers rolled a second time. <b>Add the opt-in split to see how one 40-ft box from Atlas recovers the empty space.</b></figcaption>
+    </div>
+  </figure>
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th></th><th>(a) Priority-first</th><th>(b) Utilisation-first</th></tr></thead>
+    <tbody>
+      <tr><td>Loaded</td><td>Sahel Minerals (6) + Ivoire Textile (2)</td><td>Atlas Agro (5) + Fujian Machinery (5)</td></tr>
+      <tr><td>TEU loaded</td><td>8 of 10 · 2 empty</td><td>10 of 10</td></tr>
+      <tr><td>Rolled to SA2613E</td><td>Atlas, Abidjan General, Fujian · 16 TEU, all rolled for the first time</td><td><span class="bad">Sahel (second time)</span>, Abidjan General, Ivoire · 14 TEU</td></tr>
+      <tr><td>Second rollovers</td><td class="good">0</td><td class="bad">1</td></tr>
+      <tr><td>Unique?</td><td>Yes: after Sahel, 4 TEU remain and Ivoire's 2 TEU is the best fit</td><td>Yes: Atlas + Fujian is the only plan that reaches 10 TEU</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="takeaway">
+    <p class="eyebrow">Key findings</p>
+    <p class="lead">Defend the priority-first outcome: it keeps management's one promise for 2 TEU, and the 2 TEU can be won back.</p>
+    <ul>
+      <li>The price of the principle is <b>2 TEU</b>: 20% of the leftover space but about <b>0.1%</b> of a 1,700-TEU SA vessel.</li>
+      <li>Rolled bookings are deferred, not lost. The revenue truly lost is the <b>2 empty TEU</b>.</li>
+      <li>With an opt-in split, one 40-ft box from Atlas fills the gap: <b>10 of 10 TEU</b> and no second roll.</li>
+    </ul>
+    <p class="leadsub"><b>What it does not answer:</b> priority-first sends 16 TEU of once-rolled cargo into SA2613E, so next week's priority tier needs watching.</p>
+  </div>
+
+  <div class="insight">
+    <p><b>To the commercial director:</b> <mark>keep the promise; it costs only 2 TEU.</mark> Utilisation-first gains those 2 TEU by rolling a repeat industrial shipper a second time. Priority-first keeps the rule credible, and an opt-in split from Atlas or Fujian still fills the ship.</p>
+    <p><b>To Sahel Minerals:</b> <mark>"Your three containers sail on SA2612E, whole, as booked."</mark> You were rolled once because the ship was full, and our published rule puts customers who have already waited first.</p>
+    <p><b>To Atlas, Abidjan General and Fujian:</b> <mark>"You are first in line on SA2613E."</mark> The rule that loaded Sahel today protects you next week, so nobody waits twice. If you cannot wait a week, cancel free of charge.</p>
+  </div>
+</section>
+
+<!-- ================= Q4 ================= -->
+<section id="q4">
+  <div class="qhead"><div class="qnum">4</div><h2>How should "one postponement is acceptable, two are not" enter the model?</h2></div>
+  <p class="qkind">A question of method. It decides whether the promise holds on every voyage or only on easy ones.</p>
+
+  <div class="approach">
+    <p class="eyebrow">Start with the customer, not the model</p>
+    <p>Before choosing a method, ask what a second rollover means to the person whose cargo is waiting. Shipping is a <b>competitive, repeat business</b>: customers can book elsewhere, they trade price against time every day, and how much a delay hurts depends on the route. These factors decide how firm the rule must be.</p>
+  </div>
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th>Factor</th><th>What it means for the customer</th><th>What it means for the rule</th></tr></thead>
+    <tbody>
+      <tr><td>Competition on the lane</td><td>Rival carriers already sail Shanghai and Ningbo to Abidjan every week. A customer rolled twice can book a rival for the next sailing.</td><td>The real cost of a second rollover is the <b>account</b>, not a week of delay. It has to rank first.</td></tr>
+      <tr><td>Repeat customers</td><td>Sahel Minerals ships mining parts regularly. Losing it loses every future booking, not just this one.</td><td>A small penalty undervalues the customer. The promise must hold for everyone, or nobody trusts it.</td></tr>
+      <tr><td>Price against waiting time</td><td>Shippers accept a slower, cheaper option all the time: a later sailing, a transhipment route, a flexible fare. <b>A wait they choose is a deal.</b></td><td>Voluntary rolls (a discount for flexibility, a credit for volunteering) should <b>not count</b> toward the limit. Only imposed rolls do.</td></tr>
+      <tr><td>How often the route sails</td><td>One roll on the weekly SA service costs about <b>7 days</b>; two cost <b>14</b>. On the SL service, which sails three times a week, two rolls cost about <b>5 days</b>.</td><td>The principle is really about <b>days late</b>, not the count. Tiers could be set per route by days waited.</td></tr>
+      <tr><td>Alternatives Kling can offer</td><td>When a second roll truly cannot be avoided, the customer wants a choice, not a notice.</td><td>Escalate to a person who offers compensation, the next Ningbo call or a refund to book elsewhere.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Competition example: PIL's South West Africa service calls at Shanghai, Ningbo and Abidjan with weekly direct calls at Abidjan (<a href="https://indiaseatradenews.com/?p=104307" target="_blank" rel="noopener">India Sea Trade News</a>).</p>
+
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">Exhibit 2 · what a penalty weight decides on SA2612E</div>
+          <div class="csub">Weighted-sum score of the two Pareto-optimal plans on SA2612E (Exhibit 2) as the penalty P changes</div>
+        </div>
+        <span class="sp"></span>
+        <div class="ctl" id="ctl-penalty"></div>
+        <button class="ghost tbl" type="button" data-for="penalty" aria-pressed="false">Table</button>
+      </div>
+      <div class="plot" id="plot-penalty"></div>
+      <div class="tableview" id="tv-penalty"></div>
+      <figcaption>Score = TEU loaded − P × (already-rolled bookings left behind). The fill plan scores 10 − P; the protect plan always scores 8. Exhibit 2 is used here because on Exhibit 3 a plan meets every goal at once, so any penalty gives the same answer. <b>Pick a penalty to see which plan the system would choose. Below P = 2 it rolls Sahel a second time without anyone deciding to.</b></figcaption>
+    </div>
+  </figure>
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th>Option in the question</th><th>Standard method</th><th>What can go wrong</th></tr></thead>
+    <tbody>
+      <tr><td>Hard constraint</td><td>ε-constraint method, ε = 0</td><td>Infeasible whenever rolled bookings exceed the space or cannot fit together, for example 30 TEU free against Exhibit 3's 41 TEU of twice-rolled cargo. The system then has no answer at cut-off. It cannot rank twice-rolled above once-rolled.</td></tr>
+      <tr><td>Priority ordering</td><td>Lexicographic optimisation</td><td>Always answers, but can leave space empty: 2 TEU on SA2612E (Exhibit 2), and 10 TEU on SA2618E (Exhibit 3) if run greedily. It is rigid, and many once-rolled bookings can swell next week's priority tier.</td></tr>
+      <tr><td>Penalty in the objective</td><td>Weighted-sum method</td><td>The weight decides everything and someone must justify it. The right P changes with voyage size. Very large weights also cause numerical trouble: one weighted solve stopped at 190 TEU instead of 200.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="takeaway">
+    <p class="eyebrow">Key findings</p>
+    <p class="lead">Treat a second rollover as a broken promise and rank it first: on a competitive lane, its real cost is the customer.</p>
+    <ul>
+      <li><b>Priority ordering</b> (lexicographic optimisation) states the promise openly and always gives an answer. Solved properly, it fills all <b>200 TEU</b> on SA2618E (Exhibit 3).</li>
+      <li>A <b>penalty</b> only protects Sahel when <b>P &gt; 2</b>. The honest P is the lost account, which is large, so it ends up behaving like priority ordering anyway.</li>
+      <li>A <b>hard constraint</b> has <b>no answer</b> on a week when rolled cargo exceeds the space.</li>
+    </ul>
+    <p class="leadsub"><b>When a second roll cannot be avoided:</b> a person offers the customer a choice (compensation, the next Ningbo call or a refund), and voluntary rolls never count toward the limit.</p>
+  </div>
+
+  <div class="insight">
+    <p><b>Customers accept waiting when they choose it.</b> Shippers trade price for time every day. <mark>A wait the customer chose is a deal; a second wait imposed on them is a broken promise.</mark> That is why a flexible fare or a volunteer credit is fine, and a second involuntary roll is not.</p>
+    <p><b>The lane is competitive.</b> A customer rolled twice can book a rival's next sailing and take its future bookings too. <mark>The true penalty for a second roll is the account</mark>, which is why priority ordering, not a small penalty weight, is the right method.</p>
+    <p><b>Delay depends on the route.</b> Two rolls on the three-times-weekly SL service cost less time than one on the weekly SA service. As Kling rolls the rule out to other routes, the limit could be set in days late rather than in the number of rolls.</p>
+  </div>
+</section>
+
+<!-- ================= Q5 ================= -->
+<section id="q5">
+  <div class="qhead"><div class="qnum">5</div><h2>Should bookings be divisible?</h2></div>
+  <p class="qkind">A question of policy. It decides how much space packing can recover without hurting the customer.</p>
+
+  <div class="approach">
+    <p class="eyebrow">The trade-off in one sentence</p>
+    <p>Splitting a booking lets Kling <b>fill the last gap</b> in the ship, but the customer then gets <b>two arrivals, two sets of documents and two delivery dates</b> for one consignment. The question is not whether splitting is efficient, but who should decide when it is worth it.</p>
+  </div>
+
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th></th><th>Indivisible (today)</th><th>Freely divisible</th><th>Opt-in split (proposed)</th></tr></thead>
+    <tbody>
+      <tr><td>Packing on SA2612E (Exhibit 2)</td><td>8 of 10 TEU</td><td>10 of 10 TEU</td><td>10 of 10 TEU</td></tr>
+      <tr><td>Customer experience</td><td>One shipment, one set of documents, one arrival</td><td>Consignments arrive a week or more apart, with double paperwork</td><td>Only customers who agreed are split</td></tr>
+      <tr><td>Fairness</td><td>Large bookings lose to small ones that fit</td><td>Neutral</td><td>The customer chooses</td></tr>
+      <tr><td>Model</td><td>0-1 integer program</td><td>LP relaxation</td><td>Integer program in whole containers</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="takeaway">
+    <p class="eyebrow">Proposed policy</p>
+    <p class="lead">Keep bookings whole by default, and let customers opt in to a split that fills the last gap.</p>
+    <ul>
+      <li>A <b>flexible</b> flag at booking, with the customer's own minimum part, for example at least 2 containers per shipment.</li>
+      <li>Whole containers only, at most <b>2 parts</b> per consignment, used only after whole bookings are placed.</li>
+      <li>The remainder keeps its rollover count, so it has priority next voyage. An already-rolled booking is <b>never</b> split unless that customer asks.</li>
+    </ul>
+    <p class="leadsub"><b>Incentive:</b> a small rate discount or priority within the same tier for customers who opt in. The system issues the separate documents automatically.</p>
+  </div>
+
+  <div class="insight">
+    <p><b>Splitting only helps when the gap is awkward.</b> On SA2612E (Exhibit 2), whole bookings leave 2 TEU empty; one 40-ft box from Atlas fills it. <mark>On long lists like SA2618E (Exhibit 3), whole bookings almost always fill the ship</mark>, so splitting would rarely be used. The <a href="#simulation">Simulation tab</a> tests this on hundreds of lists.</p>
+    <p><b>The customer should decide.</b> A split costs the customer more than it costs Kling: a second arrival, duplicate paperwork and a consignment that cannot be used until both halves land. <mark>Asking at booking turns a forced split into a choice</mark>, and a small discount gives customers a reason to say yes.</p>
+    <p><b>Protect the customers who already waited.</b> An already-rolled booking is never split unless that customer asks, and any remainder keeps its rollover count, so the no-second-rollover promise still holds for the part that waits.</p>
+  </div>
+</section>
+
+<!-- ================= Q6 ================= -->
+<section id="q6">
+  <div class="qhead"><div class="qnum">6</div><h2>How will customers behave once the rule is published, and what else should Kling do?</h2></div>
+  <p class="qkind">A question of incentives. It decides whether the rule still works after customers learn it.</p>
+
+  <div class="approach">
+    <p class="eyebrow">How customers will game the rule</p>
+    <p>Once the rule is published, customers will shape their bookings around it. <b>The biggest risk is "rollover farming": booking a ship you know is full so you jump the queue on the next one.</b> That is why priority should only go to cargo that was ready to sail.</p>
+  </div>
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th>Behaviour</th><th>Why it pays under the rule</th><th>Counter</th></tr></thead>
+    <tbody>
+      <tr><td>Rollover farming</td><td>Book a voyage known to be full, get rolled, and gain priority on the voyage actually wanted</td><td>Priority only if the cargo was ready by cut-off (gated in or export documents filed)</td></tr>
+      <tr><td>Booking very early</td><td>Earlier bookings win ties</td><td>Deposit; cancellation and no-show fees</td></tr>
+      <tr><td>Splitting one consignment into many bookings</td><td>Small bookings fit gaps</td><td>Link bookings by shipper and consignment; measure fairness per customer</td></tr>
+      <tr><td>Misdeclaring the commodity</td><td>Medical and spare-parts cargo win ties</td><td>Class checked against the shipping documents; penalty for misdeclaration; narrow class definitions</td></tr>
+      <tr><td>Hedging across voyages or accounts</td><td>Cancel the extras later</td><td>No-show fees; one active booking per consignment</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="approach">
+    <p class="eyebrow">What Kling should do around the rule</p>
+    <p>The algorithm only shares out the space it is given; these policies change how much space there is and how customers behave. <b>Deposits and the readiness check stop the gaming, and a capped, paid guaranteed-space option gives urgent cargo certainty without turning the queue into an auction.</b></p>
+  </div>
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th>Complementary policy</th><th>Recommendation</th><th>For it</th><th>Against it</th></tr></thead>
+    <tbody>
+      <tr><td>Open-capacity setting</td><td>Release more online space earlier using forecasts; release unused contract space at fixed checkpoints</td><td>Smaller waiting lists; earlier certainty</td><td>Less buffer for contracts and operational surprises</td></tr>
+      <tr><td>Deposits</td><td>Refunded in full if Kling rolls the cargo; forfeited on no-show or late cancellation</td><td>Cuts speculative bookings; funds compensation</td><td>Friction for small customers</td></tr>
+      <tr><td>Paid guaranteed space</td><td>One published price anyone can pay, capped at about 15–20% of open capacity, outside the waiting list, premium refunded with compensation if Kling fails to load</td><td>Certainty for urgent cargo; revenue; unlike VIP status, open to everyone</td><td>"Pay to jump the queue" if not capped</td></tr>
+      <tr><td>Overbooking</td><td>Only with real no-show data, small margins, never causing a second roll</td><td>Fills space freed by no-shows</td><td>Risks the very failure the rule exists to prevent</td></tr>
+      <tr><td>Volunteers first</td><td>Offer flexible customers a credit to move before rolling anyone, as airlines must before bumping</td><td>Turns a bump into a choice</td><td>Cost of the credit</td></tr>
+      <tr><td>Transparency and choice</td><td>Publish the rule; show queue position and priority cargo ahead; date-critical cancel option; consent at rollover</td><td>Customers who chose a voyage see their real chances</td><td>Easier to game, hence the readiness check</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="takeaway">
+    <p class="eyebrow">Key findings</p>
+    <p class="lead">A published rule changes behaviour, so the algorithm needs a readiness check, deposits and a capped paid option around it.</p>
+    <ul>
+      <li>Rollover priority is only safe with a <b>readiness check</b>; otherwise booking a full ship becomes a way to jump the queue.</li>
+      <li>Paid priority is fair only at <b>one published price</b>, capped, and refunded with compensation if Kling fails to deliver.</li>
+      <li>Paid priority must <b>never</b> mean ranking by deposit size: that turns the queue into an auction that large shippers always win.</li>
+    </ul>
+    <p class="leadsub"><b>What it does not answer:</b> if the priority tier keeps growing week after week, as Exhibit 3 already shows, the problem is capacity, not the algorithm.</p>
+  </div>
+</section>
+
+<!-- ================= RECOMMENDATION ================= -->
+<section id="rec">
+  <div class="rechead"><span class="rectag">Recommendation</span><span class="rechint">Our answer to the case: the rule Kling's booking system should run</span></div>
+  <div class="qhead"><div class="qnum">→</div><h2>Which rule should the booking system run?</h2></div>
+  <p class="qkind">A question of choice. It decides what the system does on every voyage from launch.</p>
+
+  <div class="approach">
+    <p class="eyebrow">How to read this section</p>
+    <p><b>The recommended rule is the lexicographic optimisation from Q2 and Q4.</b> It ranks the goals and solves them one at a time, locking each in before the next. The two charts below run it on SA2618E (Exhibit 3) next to three alternatives, so you can see what each alternative would cost and who would pay.</p>
+  </div>
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th>Rule in the charts</th><th>How it decides</th><th>Where you met it</th></tr></thead>
+    <tbody>
+      <tr><td><span class="recmark">Recommended</span> lexicographic</td><td>Rolled twice → rolled once → fill the ship → urgent cargo → booking order, each solved and locked in turn</td><td>Q2 model; Q4 priority ordering</td></tr>
+      <tr><td>Native customers first</td><td>The same, but customers who chose this voyage outrank everyone rolled into it</td><td>Q1, fairness between customers</td></tr>
+      <tr><td>Fill only</td><td>One goal: load the most TEU, ignoring history</td><td>Q3 rule (b), utilisation-first</td></tr>
+      <tr><td>Greedy priority</td><td>Not optimised: rolled bookings first, then whatever still fits, in booking order</td><td>Q4, priority ordering run "greedily"</td></tr>
+    </tbody>
+  </table></div>
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">Exhibit 3 · who sails on SA2618E under each rule · 200 TEU free</div>
+          <div class="csub">Each of the 22 bookings, loaded or rolled to SA2619E</div>
+        </div>
+        <span class="sp"></span>
+        <div class="ctl" id="ctl-who"></div>
+        <button class="ghost tbl" type="button" data-for="who" aria-pressed="false">Table</button>
+      </div>
+      <div class="plot" id="plot-who"></div>
+      <div class="tableview" id="tv-who"></div>
+      <figcaption>Blue bookings sail. Red bookings roll for the first time. Dark red bookings roll again, the failure management wants to avoid. <b>Start on Recommended (lexicographic), then switch rules to see who pays instead.</b></figcaption>
+    </div>
+  </figure>
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">Exhibit 3 · who carries the cost on SA2618E · 200 TEU free</div>
+          <div class="csub">Four rules applied to Exhibit 3, compared on one measure at a time</div>
+        </div>
+        <span class="sp"></span>
+        <div class="ctl" id="ctl-rules"></div>
+        <button class="ghost tbl" type="button" data-for="rules" aria-pressed="false">Table</button>
+      </div>
+      <div class="plot" id="plot-rules"></div>
+      <div class="tableview" id="tv-rules"></div>
+      <figcaption>The red marker shows the recommended rule. Each rule is the Q2 model with a different objective, solved on all 22 bookings. Fill only has many equally full solutions; this is the one the solver returned, and the worst of them pushes three twice-rolled customers to a third roll. "Native customers" never rolled before: they chose SA2618E (Exhibit 3). "Rolled again" counts customers pushed to a second or third roll. <b>Switch between measures: native-first spares four customers a first roll by giving three customers their second.</b></figcaption>
+    </div>
+  </figure>
+  <details class="calc">
+    <summary><span><span class="ctitle">How these numbers were computed</span><span class="csub">The Q2 model solved four ways in Python (PuLP 4.2 with HiGHS)</span></span><span class="disc" aria-hidden="true"></span></summary>
+    <div class="calc-body">
+      <ol class="flow">
+        <li><b>Recommended (lexicographic).</b> Solve five 0-1 integer programs in turn: rolled twice, rolled once, TEU, medical, spare parts. After each, lock its optimum in as a constraint. Then keep bookings in booking order where the locks still allow.</li>
+        <li><b>Native customers first.</b> The same, with one extra stage in front: maximise bookings that were never rolled.</li>
+        <li><b>Fill only.</b> One 0-1 integer program: maximise TEU. Many plans reach 200 TEU; the chart shows the one the solver returned.</li>
+        <li><b>Greedy priority.</b> Not a model: walk rolled-twice, then rolled-once, then new bookings in booking order, loading whatever still fits.</li>
+      </ol>
+      <pre class="code"><code># decision variables and capacity constraint (Q2)
+x = {i: m.add_variable(f&quot;x_{i}&quot;, cat=&quot;Binary&quot;) for i in W}
+m += pulp.lpSum(t[i] * x[i] for i in W) &lt;= C
+
+# objectives, in priority order
+stages = [
+    lambda x: pulp.lpSum(x[i] for i in W if r[i] &gt;= 2),   # f1: rolled twice or more
+    lambda x: pulp.lpSum(x[i] for i in W if r[i] == 1),   # f2: rolled once
+    lambda x: pulp.lpSum(t[i] * x[i] for i in W),         # f3: TEU loaded
+    lambda x: pulp.lpSum(x[i] for i in W if k[i] == 1),   # f4: medical cargo
+    lambda x: pulp.lpSum(x[i] for i in W if k[i] == 2),   # f5: spare parts
+]
+
+# lexicographic optimisation: solve each stage, then lock in its optimum
+locked = []
+for f in stages:
+    m, x = build_model(locked)      # variables + capacity + every lock so far
+    m += f(x)                       # this stage&#x27;s objective
+    m.solve(pulp.HiGHS(msg=False, gapRel=0))
+    locked.append((f, pulp.value(m.objective)))   # later stages keep f(x) &gt;= this
+# finally: walk the bookings in booking order, keeping each one
+# if every locked stage can still be met</code></pre>
+      <p class="note">The full script, <b>kling_moo_exhibit3.py</b>, runs all four rules and prints this comparison.</p>
+    </div>
+  </details>
+
+
+  <div class="takeaway">
+    <p class="eyebrow">The answer</p>
+    <p class="lead">Customers who have already waited go first, longest wait first; then fill the ship; then urgent cargo; then booking order.</p>
+    <ul>
+      <li>On SA2618E (Exhibit 3) it loads <b>200 of 200 TEU</b>, rolls <b>no one</b> a second time and keeps every medical and spare-parts booking.</li>
+      <li>It rolls <b>4</b> customers who chose the voyage, all standard cargo, and they are first in line next week.</li>
+      <li>Pilot on the weekly <b>SA</b> service, where a rollover costs most, and review after <b>8</b> sailings.</li>
+    </ul>
+    <p class="leadsub"><b>KPIs:</b> second rollovers (target 0), fill rate (≥ 98%), TEU left empty because of priority, medical bookings rolled, native customers rolled, priority-tier size (alert above 50% of space), paid-priority share, clerk overrides.</p>
+  </div>
+
+  <div class="options">
+    <div class="opt">
+      <p class="optlab">Option 1</p>
+      <h3>Fill the ship first</h3>
+      <p>Choose the combination that loads the most TEU, ignoring history.</p>
+      <p class="verdict"><b>Against it:</b> fills 200 TEU but can push twice-rolled customers, including medical cargo, to a third roll. Which customers suffer is an accident of the solver.</p>
+    </div>
+    <div class="opt">
+      <p class="optlab">Option 2</p>
+      <h3>Customers who chose the voyage first</h3>
+      <p>Native bookings outrank everyone rolled in from earlier voyages.</p>
+      <p class="verdict"><b>For it:</b> respects each customer's choice of ship. <b>Against it:</b> 3 second rollovers and 7 TEU empty on SA2618E (Exhibit 3), and Sahel rolled twice on SA2612E (Exhibit 2). The wait concentrates on the same customers.</p>
+    </div>
+    <div class="opt rec">
+      <p class="optlab">Option 3 <span class="rectag">Recommended</span></p>
+      <h3>Tiered priority, solved by lexicographic optimisation</h3>
+      <p>Rolled twice, then rolled once, then fill, then urgent cargo, then booking order. Opt-in splits fill the last gap.</p>
+      <p class="verdict"><b>For it:</b> full ship, no second rollovers, everyone waits at most once, explainable in one sentence. <b>Against it:</b> can leave a little space empty on small leftovers, and needs a readiness check to stop gaming.</p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <p><b>The rule in plain words:</b> <mark>those who have waited go first; then fill the ship; then urgent cargo; then booking order.</mark> No booking is split without the customer's agreement.</p>
+    <p><b>When it runs:</b> once when operations confirm the space, plus an early run five days out for the priority tier. <mark>A medical booking that would still roll goes to a person.</mark></p>
+    <p><b>What management is really deciding:</b> <mark>the definition of fairness, not the maths.</mark> It costs 2 TEU on SA2612E (Exhibit 2) and nothing on SA2618E (Exhibit 3). A growing priority tier means a capacity problem, not an algorithm problem.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Data.</b> Exhibits 2 and 3 of the case "Kling Shipping: The Waiting-List Problem" (company, people and data fictionalised). Final space: 10 TEU on SA2612E (Exhibit 2) and 200 TEU on SA2618E (Exhibit 3), after all confirmed bookings.</p>
+  <p><b>Method.</b> Exhibit 2: all 32 subsets enumerated. Exhibit 3: 0-1 integer programs in PuLP 4.2 with HiGHS at a zero optimality gap, solved stage by stage; the booking-order tie-break keeps each booking, earliest first, whenever earlier stages still hold. Cargo class tested before and after the TEU stage with identical results.</p>
+  <p><b>Cargo classes.</b> 1: medical and pharmaceutical goods, hospital equipment. 2: spare parts for machinery or vehicles already in service. 3: everything else. Irrigation equipment, generators, telecom equipment and tyres are borderline and need a written rule.</p>
+  <p><b>Terms.</b> TEU: twenty-foot equivalent unit; a 40-ft box is 2 TEU. Rolled: moved to the next voyage's waiting list. Native customer: a booking on its first waiting list. Pareto-optimal: no goal can improve without another getting worse.</p>
+  <p><b>Sources.</b> <a href="https://www.maersk.com/news/articles/2024/03/05/maersk-spot-terms-and-loading-guarantee" target="_blank" rel="noopener">Maersk Spot loading guarantee</a> (guaranteed space with compensation if not loaded). <a href="https://www.ecfr.gov/current/title-14/chapter-II/subchapter-A/part-250" target="_blank" rel="noopener">14 CFR Part 250</a> (airline bumping: volunteers first, written priority rules). <a href="https://splash247.com/?p=142441" target="_blank" rel="noopener">Splash247</a> (39% of boxes rolled in April 2021). <a href="https://arxiv.org/pdf/1007.4063" target="_blank" rel="noopener">Multiobjective knapsack survey</a>. <a href="https://indiaseatradenews.com/?p=104307" target="_blank" rel="noopener">India Sea Trade News</a> (PIL's weekly China–West Africa service calling at Shanghai, Ningbo and Abidjan).</p>
+  <p><b>Note.</b> Written in the role of the case's Head of the Digital Systems Office for a BMX5102 class discussion. Not modelled: freight rates, cargo weight, stowage slots, reefer and hazardous limits, and separate Shanghai and Ningbo space.</p>
+</footer>
+</div>
+
+<div id="view-simulation" hidden>
+<header class="masthead">
+  <p class="eyebrow">BMX5102 Business Analytics · Kling Shipping · simulation</p>
+  <h1>What cargo class and splitting change</h1>
+  <p class="deck">On the two case voyages, neither extra step made much difference. To test them properly, this tab builds hundreds of random waiting lists, solves each one <strong>with and without each step</strong>, and counts what changes. <strong>Change the settings and run it yourself.</strong></p>
+  <div class="meta">
+    <span><b>Model</b> the Q2 model, lexicographic optimisation</span>
+    <span><b>Solver</b> javascript-lp-solver, running in your browser</span>
+    <span><b>Checked</b> same answers as PuLP + HiGHS</span>
+  </div>
+  <p class="byline">Peh Shao Hong (A0077294U)</p>
+</header>
+
+<aside class="callout">
+  <p class="eyebrow">How the simulation works</p>
+  <div class="cols">
+    <p><strong>The lists.</strong> Each run builds random waiting lists. Booking sizes are drawn from the 27 real bookings in Exhibits 2 and 3, or made fully random. Each booking is randomly marked as rolled twice, rolled once or new; as medical, spare-parts or standard cargo; and as allowing splitting or not. The free space is set so that demand is 1.05 to 2 times the space, or the range you pick.</p>
+    <p><strong>The two tests.</strong> Section 2 solves every list with and without cargo class, using the recommended rule, and once more with cargo class ranked before TEU. Section 3 takes the recommended plan and lets customers who allowed splitting fill any space left, splitting as few bookings as possible. Every solve is exact.</p>
+  </div>
+</aside>
+
+<nav class="tabs" aria-label="Page views">
+  <a href="#report" data-view="report">Case report</a>
+  <a href="#simulation" data-view="simulation">Simulation: cargo class and splitting</a>
+</nav>
+
+<section id="sim-settings">
+  <div class="qhead"><div class="qnum">1</div><h2>Which waiting lists should we test?</h2></div>
+  <p class="qkind">Pick the scenario. The defaults look like Exhibit 3; choose 3–10 bookings for short lists like Exhibit 2.</p>
+  <div class="simctl">
+    <div class="cgroup"><p class="clbl">Lists to simulate</p><div id="sc-lists"></div></div>
+    <div class="cgroup"><p class="clbl">Bookings per list</p><div id="sc-n"></div><p class="chint">3–10 is like Exhibit 2; 10–35 is like Exhibit 3.</p></div>
+    <div class="cgroup"><p class="clbl">How over-booked (demand ÷ free space)</p><div id="sc-tight"></div><p class="chint">Mild 1.05–1.3× · Mixed 1.05–2.0× · Tight 1.5–2.5×</p></div>
+    <div class="cgroup"><p class="clbl">Urgent cargo (medical + spare parts)</p><div id="sc-urgent"></div></div>
+    <div class="cgroup"><p class="clbl">Bookings already rolled (half twice, half once)</p><div id="sc-rolled"></div><p class="chint">30% is like Exhibit 3.</p></div>
+    <div class="cgroup"><p class="clbl">Booking sizes</p><div id="sc-sizes"></div></div>
+    <div class="cgroup"><p class="clbl">Customers who allow splitting (section 3)</p><div id="sc-opt"></div></div>
+    <div class="cgroup"><p class="clbl"><label for="sim-seed">Random seed</label></p>
+      <div class="seedrow"><input id="sim-seed" type="number" min="1" max="999999" value="2026" inputmode="numeric"><button class="ghost" type="button" id="sim-newseed">New seed</button></div></div>
+    <div class="cgroup runrow">
+      <button class="runbtn" type="button" id="sim-run">Run simulation</button>
+      <div class="progress" aria-hidden="true"><div class="bar" id="sim-bar"></div></div>
+      <p class="note" id="sim-status" role="status">The default settings run automatically the first time you open this tab.</p>
+    </div>
+  </div>
+</section>
+
+<section id="sim-results">
+  <div class="qhead"><div class="qnum">2</div><h2>Does cargo class change who sails?</h2></div>
+  <p class="qkind">A question of evidence. It tests the extra step from Q2: does ranking urgent cargo change the plan, and what does it cost?</p>
+
+  <div class="kpis" id="sim-kpis">
+    <div class="kpi"><div class="n blue" id="k-changed">–</div><div class="l">of lists where cargo class changed the plan</div></div>
+    <div class="kpi"><div class="n red" id="k-urgent">–</div><div class="l">urgent bookings (medical + spare parts) rolled, without → with cargo class</div></div>
+    <div class="kpi"><div class="n red" id="k-medical">–</div><div class="l">medical bookings rolled, without → with cargo class</div></div>
+    <div class="kpi"><div class="n violet" id="k-cost">–</div><div class="l" id="k-cost-l">TEU lost by ranking cargo class after TEU (our rule)</div></div>
+  </div>
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">Urgent bookings rolled, by how over-booked the list is</div>
+          <div class="csub">Medical and spare-parts bookings rolled to the next voyage, summed over all simulated lists</div>
+        </div>
+        <span class="sp"></span>
+        <div class="ctl" id="ctl-simbands"></div>
+        <button class="ghost tbl" type="button" data-for="simbands" aria-pressed="false">Table</button>
+      </div>
+      <div class="plot" id="plot-simbands"></div>
+      <div class="tableview" id="tv-simbands"></div>
+      <figcaption>Red: without cargo class. Blue: with cargo class ranked after TEU, the recommended rule. Both load the same TEU and roll nobody a second time; they differ only in which equally sized bookings sail. <b>Switch to "Lists changed" to see how often the plan differs.</b></figcaption>
+    </div>
+  </figure>
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">One simulated list where cargo class changed the plan</div>
+          <div class="csub">Only the bookings whose decision differs are shown; both plans load the same TEU</div>
+        </div>
+        <span class="sp"></span>
+        <div class="ctl" id="ctl-simex"></div>
+      </div>
+      <div class="xwrap"><table class="xtable" id="sim-ex"><thead><tr><th>Booking</th><th>TEU</th><th>Times rolled</th><th>Cargo class</th><th>Without cargo class</th><th>With cargo class</th></tr></thead><tbody></tbody></table></div>
+      <p class="note" id="sim-exnote"></p>
+      <figcaption>Same space, same rollover promise: urgent bookings sail in place of standard bookings that take up the same total space. <b>Step through the examples to see the same kind of swap again and again.</b></figcaption>
+    </div>
+  </figure>
+
+  <div class="takeaway">
+    <p class="eyebrow">Key findings</p>
+    <p class="lead" id="sim-lead">Run the simulation to see the findings.</p>
+    <ul id="sim-bullets"></ul>
+    <p class="leadsub"><b>Why the case voyages showed no change:</b> their urgent bookings were already rolled (so first in line) or early in the queue, so they sailed anyway.</p>
+  </div>
+
+  <div class="insight">
+    <p><b>Why it works at no cost.</b> Cargo class is ranked after TEU, so it only chooses between plans that fill the ship equally. Waiting lists contain many bookings of similar size, so there are usually several equally full plans, and <mark>cargo class simply picks the one where urgent cargo sails</mark>.</p>
+    <p><b>When it matters less.</b> When many bookings are already rolled, the rollover tiers take most of the space and leave fewer choices. Short lists and fully random sizes also give fewer exact swaps. Try these settings above.</p>
+  </div>
+</section>
+
+<section id="sim-split">
+  <div class="qhead"><div class="qnum">3</div><h2>Should bookings be divisible?</h2></div>
+  <p class="qkind">A question of packing. It tests the opt-in split policy from Q5 on the same lists.</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n red" id="ks-gap">–</div><div class="l">of lists sail with empty space when bookings stay whole</div></div>
+    <div class="kpi"><div class="n blue" id="ks-teu">–</div><div class="l">TEU left empty: whole bookings only → with opt-in splits</div></div>
+    <div class="kpi"><div class="n violet" id="ks-splits">–</div><div class="l">bookings split to fill the gaps</div></div>
+    <div class="kpi"><div class="n blue" id="ks-fill">–</div><div class="l">of the empty space recovered by splitting</div></div>
+  </div>
+
+  <figure>
+    <div class="card">
+      <div class="cardhead">
+        <div>
+          <div class="ctitle">TEU left empty, whole bookings against opt-in splits</div>
+          <div class="csub">Free space that sails empty after the recommended rule, summed over all simulated lists</div>
+        </div>
+        <span class="sp"></span>
+        <button class="ghost tbl" type="button" data-for="simsplit" aria-pressed="false">Table</button>
+      </div>
+      <div class="plot" id="plot-simsplit"></div>
+      <div class="tableview" id="tv-simsplit"></div>
+      <figcaption>Red: bookings stay whole. Blue: customers who allowed splitting may send whole containers to fill the gap, splitting as few bookings as possible; already-rolled bookings are never split. <b>Choose 3–10 bookings per list to see where splitting earns its place.</b></figcaption>
+    </div>
+  </figure>
+
+  <div class="takeaway">
+    <p class="eyebrow">Key findings</p>
+    <p class="lead" id="ss-lead">Run the simulation to see the findings.</p>
+    <ul id="ss-bullets"></ul>
+    <p class="leadsub"><b>What it does not show:</b> what two arrivals and two sets of documents cost the customer. That is why splitting stays opt-in.</p>
+  </div>
+
+  <div class="insight">
+    <p><b>Gaps come from lumpy bookings.</b> With many bookings of different sizes, the solver can almost always fill the ship exactly. <mark>Empty space appears when the list is short or the leftover space is small</mark>, as on SA2612E (Exhibit 2), where no combination of whole bookings fits the last 2 TEU.</p>
+    <p><b>Splitting is a small tool for a small problem.</b> It recovers most of the empty space by splitting only a few bookings, and only bookings whose customers agreed. On long lists it is rarely needed, which is why it should be an option customers choose, not a default.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Method.</b> Each stage is a 0-1 integer program solved by javascript-lp-solver 0.4.24 (branch and bound). Stages are solved in priority order, each optimum is locked in as a constraint, and the booking-order tie-break keeps each booking, earliest first, wherever the locks allow. The split step solves two more integer programs: fill the most TEU, then split the fewest bookings.</p>
+  <p><b>Checks.</b> The ranking stages gave exactly the same plans as PuLP 4.2 with HiGHS on 60 random lists and three goal orders, and reproduce Exhibit 3's result (Daloa, Treichville, Plateau and Jiangsu roll). The split step matched PuLP on 150 short lists with gaps. The Python version of section 2 is <b>kling_class_sim.py</b>.</p>
+  <p><b>Limits.</b> The lists are synthetic: the shares of urgent cargo, rolled bookings and customers who allow splitting are set by you, not measured from Kling's data. The tests count bookings saved and space recovered, not which standard customers waited instead, nor the setup and disputes cargo classes and splits would bring.</p>
+  <p><b>Randomness.</b> The same seed and settings always give the same lists, so a result can be shared and repeated.</p>
+</footer>
+</div>
+
+</div>
+
+<script id="payload" type="application/json">{"capacity3": 200, "capacity2": 10, "ex3": [{"id": "WL-9031", "name": "Bamako Cement", "cargo": "Building materials", "n40": 6, "n20": 0, "teu": 12, "rolled": 2, "cls": 3, "order": 1}, {"id": "WL-9036", "name": "Yamoussoukro Pharma", "cargo": "Medical consumables", "n40": 2, "n20": 2, "teu": 6, "rolled": 2, "cls": 1, "order": 2}, {"id": "WL-9042", "name": "Zhejiang Solar", "cargo": "Solar panels", "n40": 8, "n20": 0, "teu": 16, "rolled": 2, "cls": 3, "order": 3}, {"id": "WL-9047", "name": "San-Pédro Auto Parts", "cargo": "Vehicle spare parts", "n40": 3, "n20": 1, "teu": 7, "rolled": 2, "cls": 2, "order": 4}, {"id": "WL-9105", "name": "Ouagadougou Agri-Inputs", "cargo": "Irrigation equipment", "n40": 7, "n20": 0, "teu": 14, "rolled": 1, "cls": 3, "order": 5}, {"id": "WL-9112", "name": "Hengda Building", "cargo": "Ceramic tiles", "n40": 10, "n20": 3, "teu": 23, "rolled": 1, "cls": 3, "order": 6}, {"id": "WL-9118", "name": "Côte Ouest Telecom", "cargo": "Telecom equipment", "n40": 8, "n20": 2, "teu": 18, "rolled": 1, "cls": 3, "order": 7}, {"id": "WL-9203", "name": "Atlantic Foodstuff", "cargo": "Food machinery", "n40": 4, "n20": 3, "teu": 11, "rolled": 0, "cls": 3, "order": 8}, {"id": "WL-9205", "name": "Guangzhou Furniture", "cargo": "Furniture", "n40": 3, "n20": 0, "teu": 6, "rolled": 0, "cls": 3, "order": 9}, {"id": "WL-9208", "name": "Abidjan Electro", "cargo": "Household appliances", "n40": 4, "n20": 1, "teu": 9, "rolled": 0, "cls": 3, "order": 10}, {"id": "WL-9211", "name": "Lagune Printing", "cargo": "Printing supplies", "n40": 0, "n20": 6, "teu": 6, "rolled": 0, "cls": 3, "order": 11}, {"id": "WL-9214", "name": "Korhogo Cotton", "cargo": "Cotton gin spares", "n40": 2, "n20": 3, "teu": 7, "rolled": 0, "cls": 2, "order": 12}, {"id": "WL-9216", "name": "Shandong Tyre", "cargo": "Tyres", "n40": 5, "n20": 0, "teu": 10, "rolled": 0, "cls": 3, "order": 13}, {"id": "WL-9219", "name": "Bouaké Construction", "cargo": "Scaffolding", "n40": 6, "n20": 2, "teu": 14, "rolled": 0, "cls": 3, "order": 14}, {"id": "WL-9223", "name": "Ivoire Medical", "cargo": "Hospital beds", "n40": 1, "n20": 3, "teu": 5, "rolled": 0, "cls": 1, "order": 15}, {"id": "WL-9225", "name": "Yiwu Commodities", "cargo": "General merchandise", "n40": 4, "n20": 0, "teu": 8, "rolled": 0, "cls": 3, "order": 16}, {"id": "WL-9228", "name": "Daloa Motorcycles", "cargo": "Motorcycle kits", "n40": 2, "n20": 1, "teu": 5, "rolled": 0, "cls": 3, "order": 17}, {"id": "WL-9230", "name": "Treichville Textile", "cargo": "Wax-print fabrics", "n40": 0, "n20": 5, "teu": 5, "rolled": 0, "cls": 3, "order": 18}, {"id": "WL-9233", "name": "Mali Transit", "cargo": "Generators", "n40": 3, "n20": 2, "teu": 8, "rolled": 0, "cls": 3, "order": 19}, {"id": "WL-9236", "name": "Xiamen Heavy", "cargo": "Excavator parts", "n40": 10, "n20": 0, "teu": 20, "rolled": 0, "cls": 2, "order": 20}, {"id": "WL-9239", "name": "Plateau Retail", "cargo": "Consumer electronics", "n40": 7, "n20": 0, "teu": 14, "rolled": 0, "cls": 3, "order": 21}, {"id": "WL-9241", "name": "Jiangsu Cable", "cargo": "Electrical cables", "n40": 12, "n20": 0, "teu": 24, "rolled": 0, "cls": 3, "order": 22}], "rules3": [{"key": "lex", "label": "Recommended (lexicographic)", "loaded": ["WL-9031", "WL-9036", "WL-9042", "WL-9047", "WL-9105", "WL-9112", "WL-9118", "WL-9203", "WL-9205", "WL-9208", "WL-9211", "WL-9214", "WL-9216", "WL-9219", "WL-9223", "WL-9225", "WL-9233", "WL-9236"], "metrics": {"teu": 200, "empty": 0, "repeat": 0, "native": 4, "c1": 0, "c2": 0, "rolledTeu": 48, "rolledN": 4}}, {"key": "native", "label": "Native customers first", "loaded": ["WL-9031", "WL-9036", "WL-9042", "WL-9047", "WL-9203", "WL-9205", "WL-9208", "WL-9211", "WL-9214", "WL-9216", "WL-9219", "WL-9223", "WL-9225", "WL-9228", "WL-9230", "WL-9233", "WL-9236", "WL-9239", "WL-9241"], "metrics": {"teu": 193, "empty": 7, "repeat": 3, "native": 0, "c1": 0, "c2": 0, "rolledTeu": 55, "rolledN": 3}}, {"key": "util", "label": "Fill only (max TEU)", "loaded": ["WL-9042", "WL-9047", "WL-9105", "WL-9112", "WL-9118", "WL-9203", "WL-9208", "WL-9211", "WL-9214", "WL-9216", "WL-9219", "WL-9223", "WL-9225", "WL-9228", "WL-9230", "WL-9233", "WL-9236", "WL-9239"], "metrics": {"teu": 200, "empty": 0, "repeat": 2, "native": 2, "c1": 1, "c2": 0, "rolledTeu": 48, "rolledN": 4}}, {"key": "greedy", "label": "Greedy priority", "loaded": ["WL-9031", "WL-9036", "WL-9042", "WL-9047", "WL-9105", "WL-9112", "WL-9118", "WL-9203", "WL-9205", "WL-9208", "WL-9211", "WL-9214", "WL-9216", "WL-9219", "WL-9223", "WL-9225", "WL-9228", "WL-9230", "WL-9233"], "metrics": {"teu": 190, "empty": 10, "repeat": 0, "native": 3, "c1": 0, "c2": 1, "rolledTeu": 58, "rolledN": 3}}], "stages": [["Rolled twice+ loaded (bookings)", 4], ["Rolled once loaded (bookings)", 3], ["TEU loaded", 200], ["Class 1 essential loaded (bookings)", 2], ["Class 2 operations-critical loaded (bookings)", 3]], "ex2": [{"id": "WL-8871", "name": "Sahel Minerals", "cargo": "Mining equipment parts", "n40": 3, "n20": 0, "teu": 6, "rolled": 1, "cls": 2}, {"id": "WL-8874", "name": "Atlas Agro", "cargo": "Agricultural machinery", "n40": 1, "n20": 3, "teu": 5, "rolled": 0, "cls": 3}, {"id": "WL-8876", "name": "Abidjan General", "cargo": "Consumer goods", "n40": 3, "n20": 0, "teu": 6, "rolled": 0, "cls": 3}, {"id": "WL-8879", "name": "Ivoire Textile", "cargo": "Fabric rolls", "n40": 0, "n20": 2, "teu": 2, "rolled": 0, "cls": 3}, {"id": "WL-8880", "name": "Fujian Machinery", "cargo": "Construction machinery", "n40": 2, "n20": 1, "teu": 5, "rolled": 0, "cls": 3}], "plans": [{"names": ["Atlas Agro", "Fujian Machinery"], "teu": 10, "sahel": false, "pareto": true}, {"names": ["Sahel Minerals", "Ivoire Textile"], "teu": 8, "sahel": true, "pareto": true}, {"names": ["Abidjan General", "Ivoire Textile"], "teu": 8, "sahel": false, "pareto": false}, {"names": ["Atlas Agro", "Ivoire Textile"], "teu": 7, "sahel": false, "pareto": false}, {"names": ["Ivoire Textile", "Fujian Machinery"], "teu": 7, "sahel": false, "pareto": false}, {"names": ["Sahel Minerals"], "teu": 6, "sahel": true, "pareto": false}, {"names": ["Abidjan General"], "teu": 6, "sahel": false, "pareto": false}, {"names": ["Atlas Agro"], "teu": 5, "sahel": false, "pareto": false}, {"names": ["Fujian Machinery"], "teu": 5, "sahel": false, "pareto": false}, {"names": ["Ivoire Textile"], "teu": 2, "sahel": false, "pareto": false}], "rules2": [{"key": "prio", "label": "(a) Priority-first", "segs": [["Sahel Minerals", 6, "rolled"], ["Ivoire Textile", 2, "new"]], "rolled": [["Atlas Agro", false], ["Abidjan General", false], ["Fujian Machinery", false]]}, {"key": "util", "label": "(b) Utilisation-first", "segs": [["Atlas Agro", 5, "new"], ["Fujian Machinery", 5, "new"]], "rolled": [["Sahel Minerals", true], ["Abidjan General", false], ["Ivoire Textile", false]]}, {"key": "split", "label": "(a) + opt-in split", "segs": [["Sahel Minerals", 6, "rolled"], ["Ivoire Textile", 2, "new"], ["Atlas Agro · 1×40 ft", 2, "split"]], "rolled": [["Abidjan General", false], ["Fujian Machinery", false], ["Atlas Agro · other 3×20 ft", false]]}]}</script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/javascript-lp-solver@0.4.24/prod/solver.js"></script>
+<script>
+document.documentElement.lang = "en";
+const P = JSON.parse(document.getElementById('payload').textContent);
+const CV = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const C = {sub:CV('--sub'),cas:CV('--cas'),ink:CV('--ink'),ink2:CV('--ink-2'),ink3:CV('--ink-3'),rule:CV('--rule'),axis:CV('--axis'),
+  plane:CV('--plane'),violet:CV('--violet'),orange:CV('--orange'),blue2:'#86b6ef',blue3:'#0d366b',red3:'#7a1c1c',grey:'#c3c2b7'};
+const FONT='"Public Sans",system-ui,sans-serif';
+const el=id=>document.getElementById('plot-'+id),ctl=id=>document.getElementById('ctl-'+id),tvw=id=>document.getElementById('tv-'+id);
+const fmt=d3.format(',');
+function svgIn(n,W,H){return d3.select(n).append('svg').attr('viewBox',`0 0 ${W} ${H}`).attr('preserveAspectRatio','xMinYMin meet')
+  .style('width','100%').style('height','auto').style('display','block').style('font-family',FONT);}
+function tipFor(n){const h=d3.select(n).style('position','relative'),t=h.append('div').attr('class','tip');
+  return {show(html,ev){t.html(html).style('opacity',1);const r=n.getBoundingClientRect(),x=ev.clientX-r.left,y=ev.clientY-r.top,
+    tw=t.node().offsetWidth,th=t.node().offsetHeight;let lx=x+14,ly=y-th-10;if(lx+tw>r.width-4)lx=x-tw-14;if(lx<0)lx=4;if(ly<0)ly=y+16;
+    t.style('left',lx+'px').style('top',ly+'px');},hide(){t.style('opacity',0);}};}
+function rws(pairs,title){return (title?`<div class="t">${title}</div>`:'')+pairs.map(p=>`<div class="r"><span>${p[0]}</span><b>${p[1]}</b></div>`).join('');}
+function ax(s){s.selectAll('.domain').attr('stroke',C.axis);s.selectAll('line').attr('stroke',C.axis);
+  s.selectAll('text').attr('fill',C.ink3).style('font-size','12px').style('font-family',FONT);return s;}
+function valueAxis(s){s.select('.domain').remove();s.selectAll('line').remove();s.selectAll('text').attr('fill',C.ink3).style('font-size','12px').style('font-family',FONT);return s;}
+function keys(n,items){d3.select(n).selectAll('.legend').remove();const w=d3.select(n).append('div').attr('class','legend');
+  w.selectAll('span').data(items).join('span').attr('class','k').html(d=>`<i style="background:${d.color};${d.outline?'background:transparent;border:1.5px dashed '+d.outline+';':''}"></i>${d.label}`);}
+function noteIn(n){let s=d3.select(n).select('p.note');if(s.empty())s=d3.select(n).append('p').attr('class','note');return s;}
+function seg(container,options,current,onChange){const s=d3.select(container).append('div').attr('class','seg');
+  s.selectAll('button').data(options).join('button').attr('type','button').text(d=>d.label)
+   .attr('aria-pressed',d=>String(d.key===current)).on('click',function(ev,d){s.selectAll('button').attr('aria-pressed',b=>String(b.key===d.key));onChange(d.key);});}
+function table(id,head,rows){tvw(id).innerHTML=`<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${
+  rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;}
+const ordinal=n=>['first','second','third','fourth'][n]||n+'th';
+
+/* ---------- 0 · Exhibit 3 waiting list ---------- */
+function drawWL(){
+  const id='wl',n=el(id),rows=P.ex3;let mode='rolled';
+  const W=1100,rowH=24,M={t:10,r:60,b:44,l:200},H=M.t+rows.length*rowH+M.b;
+  const svg=svgIn(n,W,H),tip=tipFor(n);
+  const x=d3.scaleLinear([0,25],[M.l,W-M.r]),y=d3.scaleBand(rows.map(d=>d.id),[M.t,H-M.b]).padding(.28);
+  svg.append('g').selectAll('line').data(x.ticks(5)).join('line').attr('x1',d=>x(d)).attr('x2',d=>x(d)).attr('y1',M.t).attr('y2',H-M.b).attr('stroke',C.rule);
+  valueAxis(svg.append('g').attr('transform',`translate(0,${H-M.b})`).call(d3.axisBottom(x).ticks(5).tickPadding(8)));
+  svg.append('line').attr('x1',M.l).attr('x2',M.l).attr('y1',M.t).attr('y2',H-M.b).attr('stroke',C.axis);
+  svg.append('text').attr('x',(M.l+W-M.r)/2).attr('y',H-6).attr('text-anchor','middle').attr('fill',C.ink2).style('font-size','12px').text('TEU requested');
+  const lab=svg.append('g').selectAll('text').data(rows).join('text').attr('x',M.l-10).attr('y',d=>y(d.id)+y.bandwidth()/2).attr('dy','.35em')
+    .attr('text-anchor','end').attr('fill',C.ink2).style('font-size','12px');
+  lab.append('tspan').text(d=>d.name);
+  const bars=svg.append('g').selectAll('rect').data(rows).join('rect').attr('x',M.l).attr('y',d=>y(d.id)).attr('height',y.bandwidth())
+    .attr('width',d=>x(d.teu)-M.l);
+  svg.append('g').selectAll('text').data(rows).join('text').attr('x',d=>x(d.teu)+6).attr('y',d=>y(d.id)+y.bandwidth()/2).attr('dy','.35em')
+    .attr('fill',C.ink2).style('font-size','12px').style('font-variant-numeric','tabular-nums').text(d=>d.teu);
+  const colR=d=>d.rolled>=2?C.red3:d.rolled===1?C.cas:C.sub, colK=d=>d.cls===1?C.blue3:d.cls===2?C.sub:C.grey;
+  const clsName=k=>k===1?'1 · medical':k===2?'2 · spare parts':'3 · standard';
+  bars.on('mousemove',(ev,d)=>tip.show(rws([['Cargo',d.cargo],['Containers',`${d.n40} × 40 ft, ${d.n20} × 20 ft`],['TEU',d.teu],['Times rolled',d.rolled],['Cargo class',clsName(d.cls)]],`${d.id} · ${d.name}`),ev)).on('mouseleave',()=>tip.hide());
+  function sum(f){const r=rows.filter(f);return `${r.length} bookings, ${d3.sum(r,d=>d.teu)} TEU`;}
+  function render(){bars.attr('fill',mode==='rolled'?colR:colK);
+    if(mode==='rolled'){keys(n,[{color:C.red3,label:'Rolled twice'},{color:C.cas,label:'Rolled once'},{color:C.sub,label:'New on this list'}]);
+      noteIn(n).html(`<b>248 TEU requested for 200 TEU.</b> Rolled twice: ${sum(d=>d.rolled>=2)}. Rolled once: ${sum(d=>d.rolled===1)}. New: ${sum(d=>d.rolled===0)}.`);}
+    else{keys(n,[{color:C.blue3,label:'Class 1 · medical'},{color:C.sub,label:'Class 2 · spare parts'},{color:C.grey,label:'Class 3 · standard'}]);
+      noteIn(n).html(`Class 1: ${sum(d=>d.cls===1)}. Class 2: ${sum(d=>d.cls===2)}. Class 3: ${sum(d=>d.cls===3)}. <b>Yamoussoukro Pharma is medical cargo already rolled twice.</b>`);}
+    d3.select(n).select('.legend').lower();d3.select(n).select('svg').lower();}
+  seg(ctl(id),[{key:'rolled',label:'Times rolled'},{key:'cls',label:'Cargo class'}],mode,k=>{mode=k;render();});
+  render();
+  table(id,['Booking','Customer','Cargo','40 ft','20 ft','TEU','Times rolled','Class'],rows.map(d=>[d.id,d.name,d.cargo,d.n40,d.n20,d.teu,d.rolled,d.cls]));
+}
+
+/* ---------- Q1a · Exhibit 2 feasible plans (dot grid + TEU bar) ---------- */
+function drawPlans(){
+  const id='plans',n=el(id);let mode='all';
+  const B=P.ex2,short={'Sahel Minerals':'Sahel','Atlas Agro':'Atlas','Abidjan General':'Abidjan Gen.','Ivoire Textile':'Ivoire','Fujian Machinery':'Fujian'};
+  const W=1100,rowH=34,M={t:70,r:190,b:40,l:24},colX=j=>78+j*98,barX0=540;
+  const tip=tipFor(n);
+  function render(){
+    d3.select(n).selectAll('svg,.legend,p.note').remove();
+    const rows=mode==='all'?P.plans:P.plans.filter(p=>p.pareto),H=M.t+rows.length*rowH+M.b;
+    const svg=svgIn(n,W,H),x=d3.scaleLinear([0,10],[barX0,W-M.r]),cy=i=>M.t+i*rowH+rowH/2;
+    /* column headers: one per booking */
+    B.forEach((b,j)=>{
+      svg.append('text').attr('x',colX(j)).attr('y',24).attr('text-anchor','middle').attr('fill',b.rolled?C.violet:C.ink).style('font-size','13px').style('font-weight',600).text(short[b.name]);
+      svg.append('text').attr('x',colX(j)).attr('y',42).attr('text-anchor','middle').attr('fill',C.ink3).style('font-size','11px').text(`${b.teu} TEU · ${b.rolled?'rolled once':'new'}`);
+    });
+    svg.append('text').attr('x',barX0).attr('y',24).attr('fill',C.ink).style('font-size','13px').style('font-weight',600).text('TEU loaded');
+    svg.append('text').attr('x',barX0).attr('y',42).attr('fill',C.ink3).style('font-size','11px').text('out of 10 TEU free');
+    svg.append('line').attr('x1',M.l).attr('x2',W-M.r+170).attr('y1',M.t-10).attr('y2',M.t-10).attr('stroke',C.ink);
+    /* row hairlines */
+    svg.append('g').selectAll('line').data(rows.slice(1)).join('line').attr('x1',M.l).attr('x2',W-M.r+170)
+      .attr('y1',(d,i)=>M.t+(i+1)*rowH).attr('y2',(d,i)=>M.t+(i+1)*rowH).attr('stroke',C.rule);
+    /* bar-area gridlines and axis */
+    svg.append('g').selectAll('line').data([0,2,4,6,8]).join('line').attr('x1',d=>x(d)).attr('x2',d=>x(d)).attr('y1',M.t-10).attr('y2',H-M.b).attr('stroke',C.rule).attr('stroke-dasharray','2 3');
+    valueAxis(svg.append('g').attr('transform',`translate(0,${H-M.b})`).call(d3.axisBottom(x).tickValues([0,2,4,6,8,10]).tickPadding(8)));
+    svg.append('line').attr('x1',x(10)).attr('x2',x(10)).attr('y1',M.t-10).attr('y2',H-M.b).attr('stroke',C.violet).attr('stroke-dasharray','4 3');
+    rows.forEach((d,i)=>{
+      const g=svg.append('g'),inc=B.map(b=>d.names.includes(b.name)),on=B.map((b,j)=>j).filter(j=>inc[j]);
+      if(on.length>1)g.append('line').attr('x1',colX(on[0])).attr('x2',colX(on[on.length-1])).attr('y1',cy(i)).attr('y2',cy(i)).attr('stroke',C.ink2).attr('stroke-width',2);
+      B.forEach((b,j)=>g.append('circle').attr('cx',colX(j)).attr('cy',cy(i)).attr('r',7)
+        .attr('fill',inc[j]?(b.rolled?C.violet:C.ink2):C.plane).attr('stroke',inc[j]?(b.rolled?C.violet:C.ink2):C.axis).attr('stroke-width',1.5));
+      g.append('rect').attr('x',barX0).attr('y',cy(i)-8).attr('height',16).attr('width',x(d.teu)-barX0).attr('fill',d.sahel?C.sub:C.cas);
+      g.append('text').attr('x',x(d.teu)+(d.teu===10?-6:6)).attr('y',cy(i)).attr('dy','.35em').attr('text-anchor',d.teu===10?'end':'start')
+        .attr('fill',d.teu===10?'#fff':C.ink2).style('font-size','12px').text(d.teu);
+      if(d.pareto)g.append('text').attr('x',W-M.r+14).attr('y',cy(i)).attr('dy','.35em').attr('fill',C.ink).style('font-size','12px').style('font-weight',600)
+        .text(d.sahel?'Pareto · keeps promise':'Pareto · fills ship');
+      g.append('rect').attr('x',M.l).attr('y',cy(i)-rowH/2).attr('width',W-M.l).attr('height',rowH).attr('fill','transparent')
+        .on('mousemove',ev=>tip.show(rws([['Sails',d.names.join(', ')],['Rolls',B.filter(b=>!d.names.includes(b.name)).map(b=>short[b.name]).join(', ')],['TEU loaded',`${d.teu} of 10`],['Sahel Minerals',d.sahel?'sails':'rolled a second time']]),ev))
+        .on('mouseleave',()=>tip.hide());
+    });
+    const lg=d3.select(n).append('div').attr('class','legend');
+    lg.html(`<span class="k"><i style="background:${C.ink2};border-radius:50%"></i>Booking sails</span>`+
+      `<span class="k"><i style="background:transparent;border:1.5px solid ${C.axis};border-radius:50%"></i>Booking rolls to next week</span>`+
+      `<span class="k"><i style="background:${C.sub}"></i>Sahel sails (promise kept)</span>`+
+      `<span class="k"><i style="background:${C.cas}"></i>Sahel rolled a second time</span>`);
+    noteIn(n).html(mode==='all'?'<b>10 plans fit in 10 TEU.</b> Only the top row fills the ship, and it leaves Sahel behind a second time.'
+      :'<b>Two plans are Pareto-optimal:</b> fill all 10 TEU and roll Sahel again, or load 8 TEU and keep the promise. The ranking of goals has to choose.');
+  }
+  seg(ctl(id),[{key:'all',label:'All plans'},{key:'pareto',label:'Pareto-optimal only'}],mode,k=>{mode=k;render();});
+  render();
+  table(id,['Plan','Sahel (6)','Atlas (5)','Abidjan Gen. (6)','Ivoire (2)','Fujian (5)','TEU loaded','Pareto-optimal'],
+    P.plans.map((d,i)=>[`Plan ${i+1}`].concat(B.map(b=>d.names.includes(b.name)?'sails':'rolls'),[d.teu,d.pareto?'yes':'no'])));
+}
+
+/* ---------- Q1b · Exhibit 3 rules compared ---------- */
+function drawRules(){
+  const id='rules',n=el(id);let metric='repeat';
+  const MET={teu:{label:'TEU loaded',color:C.sub,max:200,note:'Two rules fill all 200 TEU. Native-first leaves 7 TEU empty and greedy priority leaves 10.'},
+    empty:{label:'TEU empty',color:C.grey,max:12,note:'Space sails empty under native-first (7 TEU) and greedy priority (10 TEU), because the leftover gap fits none of the remaining bookings.'},
+    repeat:{label:'Rolled again',color:C.red3,max:4,note:'<b>Only the recommended rule and greedy priority roll nobody a second time.</b> Native-first rolls 3 customers again; fill-only pushes 2 to a third roll.'},
+    native:{label:'Native customers rolled',color:C.cas,max:5,note:'The recommended rule rolls 4 customers for the first time, all standard cargo. Native-first rolls none, by rolling others again.'}};
+  const W=1100,H=350,M={t:48,r:24,b:56,l:56};
+  const svg=svgIn(n,W,H),tip=tipFor(n),R=P.rules3;
+  const x=d3.scaleBand(R.map(d=>d.key),[M.l,W-M.r]).padding(.3);
+  const gGrid=svg.append('g'),gAxis=svg.append('g').attr('transform',`translate(${M.l},0)`),gBars=svg.append('g'),gLab=svg.append('g'),gRec=svg.append('g');
+  ax(svg.append('g').attr('transform',`translate(0,${H-M.b})`).call(d3.axisBottom(x).tickSize(0).tickPadding(10).tickFormat(k=>R.find(r=>r.key===k).label)))
+    .selectAll('text').style('font-weight',k=>k==='lex'?600:400).attr('fill',k=>k==='lex'?C.ink:C.ink3);
+  const yT=svg.append('text').attr('transform',`translate(14,${(M.t+H-M.b)/2}) rotate(-90)`).attr('text-anchor','middle').attr('fill',C.ink2).style('font-size','12px');
+  function render(){const m=MET[metric],y=d3.scaleLinear([0,m.max],[H-M.b,M.t]).nice();
+    gGrid.selectAll('line').data(y.ticks(5)).join('line').attr('x1',M.l).attr('x2',W-M.r).attr('y1',d=>y(d)).attr('y2',d=>y(d)).attr('stroke',C.rule);
+    valueAxis(gAxis.call(d3.axisLeft(y).ticks(Math.min(5,m.max)).tickFormat(d3.format('d')).tickPadding(8)));
+    gBars.selectAll('rect').data(R).join('rect').attr('x',d=>x(d.key)).attr('width',x.bandwidth())
+      .attr('y',d=>y(d.metrics[metric])).attr('height',d=>Math.max(0,y(0)-y(d.metrics[metric]))).attr('fill',m.color)
+      .on('mousemove',(ev,d)=>tip.show(rws([['TEU loaded',d.metrics.teu],['TEU empty',d.metrics.empty],['Rolled again',d.metrics.repeat],['Native customers rolled',d.metrics.native],['Medical rolled',d.metrics.c1],['Spare parts rolled',d.metrics.c2]],d.label),ev)).on('mouseleave',()=>tip.hide());
+    gLab.selectAll('text').data(R).join('text').attr('x',d=>x(d.key)+x.bandwidth()/2).attr('y',d=>y(d.metrics[metric])-8).attr('text-anchor','middle')
+      .attr('fill',C.ink2).style('font-size','12px').style('font-variant-numeric','tabular-nums').text(d=>d.metrics[metric]);
+    gRec.selectAll('text').data(R.filter(d=>d.key==='lex')).join('text').attr('x',d=>x(d.key)+x.bandwidth()/2).attr('y',d=>Math.min(y(d.metrics[metric]),y(0))-26)
+      .attr('text-anchor','middle').attr('fill',CV('--rec')).style('font-size','12px').style('font-weight',600).text('▼ Recommended');
+    yT.text({teu:'TEU loaded',empty:'TEU left empty',repeat:'customers rolled again',native:'native customers rolled'}[metric]);
+    noteIn(n).html(m.note);}
+  seg(ctl(id),[{key:'teu',label:'TEU loaded'},{key:'empty',label:'TEU empty'},{key:'repeat',label:'Rolled again'},{key:'native',label:'Native rolled'}],metric,k=>{metric=k;render();});
+  render();
+  table(id,['Rule','TEU loaded','TEU empty','Rolled again','Native customers rolled','Medical rolled','Spare parts rolled'],R.map(d=>[d.label,d.metrics.teu,d.metrics.empty,d.metrics.repeat,d.metrics.native,d.metrics.c1,d.metrics.c2]));
+}
+
+/* ---------- Q3 · capacity strips on SA2612E ---------- */
+function drawCap2(){
+  const id='cap2',n=el(id);let mode='two';
+  const W=1100,rowH=78,M={t:14,r:24,b:44,l:190},tip=tipFor(n);
+  const kindCol={rolled:C.violet,new:C.sub,split:C.blue2};
+  function render(){
+    d3.select(n).selectAll('svg,.legend,p.note').remove();
+    const rows=mode==='two'?P.rules2.slice(0,2):P.rules2,H=M.t+rows.length*rowH+M.b,svg=svgIn(n,W,H);
+    const x=d3.scaleLinear([0,10],[M.l,W-M.r]);
+    svg.append('g').selectAll('line').data(d3.range(0,11,2)).join('line').attr('x1',d=>x(d)).attr('x2',d=>x(d)).attr('y1',M.t).attr('y2',H-M.b).attr('stroke',C.rule);
+    valueAxis(svg.append('g').attr('transform',`translate(0,${H-M.b})`).call(d3.axisBottom(x).tickValues(d3.range(0,11,2)).tickPadding(8)));
+    svg.append('text').attr('x',(M.l+W-M.r)/2).attr('y',H-6).attr('text-anchor','middle').attr('fill',C.ink2).style('font-size','12px').text('TEU of the 10 TEU final space');
+    rows.forEach((r,ri)=>{const y0=M.t+ri*rowH,bh=30;let acc=0;
+      svg.append('text').attr('x',M.l-12).attr('y',y0+bh/2).attr('dy','.35em').attr('text-anchor','end').attr('fill',C.ink).style('font-size','12px').style('font-weight',600).text(r.label);
+      r.segs.forEach(s=>{const x0=x(acc),w=x(acc+s[1])-x0;acc+=s[1];
+        svg.append('rect').attr('x',x0).attr('y',y0).attr('width',w).attr('height',bh).attr('fill',kindCol[s[2]]).attr('stroke',C.plane).attr('stroke-width',1.5)
+          .on('mousemove',ev=>tip.show(rws([['TEU',s[1]],['Status',s[2]==='rolled'?'already rolled once':s[2]==='split'?'part of an opt-in split':'new booking']],s[0]),ev)).on('mouseleave',()=>tip.hide());
+        svg.append('text').attr('x',x0+8).attr('y',y0+bh/2).attr('dy','.35em').attr('fill',s[2]==='split'?C.ink:'#fff').style('font-size','12px').style('pointer-events','none')
+          .text(w>150?`${s[0]} · ${s[1]}`:s[1]);});
+      if(acc<10){const x0=x(acc),w=x(10)-x0;
+        svg.append('rect').attr('x',x0+1).attr('y',y0+1).attr('width',w-2).attr('height',bh-2).attr('fill','none').attr('stroke',C.ink3).attr('stroke-dasharray','4 3');
+        svg.append('text').attr('x',x0+w/2).attr('y',y0+bh/2).attr('dy','.35em').attr('text-anchor','middle').attr('fill',C.ink3).style('font-size','12px').text(`${10-acc} empty`);}
+      const t=svg.append('text').attr('x',M.l).attr('y',y0+bh+20).style('font-size','12px').attr('fill',C.ink3);
+      t.append('tspan').text('Rolls to SA2613E: ');
+      r.rolled.forEach((q,qi)=>{t.append('tspan').attr('fill',q[1]?C.cas:C.ink2).style('font-weight',q[1]?600:400).text(q[0]+(q[1]?' (second time)':''));
+        if(qi<r.rolled.length-1)t.append('tspan').attr('fill',C.ink3).text(' · ');});
+    });
+    const k=[{color:C.violet,label:'Already rolled once (Sahel)'},{color:C.sub,label:'New booking'}];
+    if(mode!=='two')k.push({color:C.blue2,label:'Opt-in split part'});
+    k.push({color:'transparent',outline:C.ink3,label:'Sails empty'});keys(n,k);
+    noteIn(n).html(mode==='two'?'<b>(a)</b> 8 TEU, no second roll. <b>(b)</b> 10 TEU, Sahel rolled a second time.'
+      :'<b>With an opt-in split,</b> one 40-ft box from Atlas fills the 2 empty TEU: 10 of 10 TEU and no second roll.');
+  }
+  seg(ctl(id),[{key:'two',label:'Two rules'},{key:'split',label:'Add opt-in split'}],mode,k=>{mode=k;render();});
+  render();
+  table(id,['Rule','Loaded','TEU loaded','TEU empty','Rolled to SA2613E','Second rollovers'],P.rules2.map(r=>{const t=d3.sum(r.segs,s=>s[1]);
+    return [r.label,r.segs.map(s=>s[0]).join(', '),t,10-t,r.rolled.map(q=>q[0]+(q[1]?' (2nd)':'')).join(', '),r.rolled.filter(q=>q[1]).length];}));
+}
+
+/* ---------- Q4 · penalty threshold ---------- */
+function drawPenalty(){
+  const id='penalty',n=el(id);let p=1.5;
+  const W=1100,H=330,M={t:16,r:200,b:46,l:56};
+  const svg=svgIn(n,W,H);
+  const x=d3.scaleLinear([0,4],[M.l,W-M.r]),y=d3.scaleLinear([5,11],[H-M.b,M.t]);
+  svg.append('rect').attr('x',x(0)).attr('y',M.t).attr('width',x(2)-x(0)).attr('height',H-M.b-M.t).attr('fill',C.cas).attr('opacity',.08);
+  svg.append('rect').attr('x',x(2)).attr('y',M.t).attr('width',x(4)-x(2)).attr('height',H-M.b-M.t).attr('fill',C.sub).attr('opacity',.08);
+  svg.append('text').attr('x',x(1)).attr('y',M.t+18).attr('text-anchor','middle').attr('fill',C.cas).style('font-size','12px').style('font-weight',600).text('Fill plan wins: Sahel rolled a second time');
+  svg.append('text').attr('x',x(3)).attr('y',M.t+18).attr('text-anchor','middle').attr('fill',C.sub).style('font-size','12px').style('font-weight',600).text('Protect plan wins: Sahel sails');
+  svg.append('g').selectAll('line').data(y.ticks(6)).join('line').attr('x1',M.l).attr('x2',W-M.r).attr('y1',d=>y(d)).attr('y2',d=>y(d)).attr('stroke',C.rule);
+  valueAxis(svg.append('g').attr('transform',`translate(${M.l},0)`).call(d3.axisLeft(y).ticks(6).tickPadding(8)));
+  ax(svg.append('g').attr('transform',`translate(0,${H-M.b})`).call(d3.axisBottom(x).ticks(8).tickSize(4)));
+  svg.append('text').attr('transform',`translate(14,${(M.t+H-M.b)/2}) rotate(-90)`).attr('text-anchor','middle').attr('fill',C.ink2).style('font-size','12px').text('weighted score (TEU-equivalents)');
+  svg.append('text').attr('x',(M.l+W-M.r)/2).attr('y',H-6).attr('text-anchor','middle').attr('fill',C.ink2).style('font-size','12px').text('penalty P for leaving an already-rolled booking behind');
+  const line=d3.line().x(d=>x(d[0])).y(d=>y(d[1]));
+  svg.append('path').attr('d',line([[0,10],[4,6]])).attr('fill','none').attr('stroke',C.cas).attr('stroke-width',2).attr('stroke-linecap','round');
+  svg.append('path').attr('d',line([[0,8],[4,8]])).attr('fill','none').attr('stroke',C.sub).attr('stroke-width',2).attr('stroke-linecap','round');
+  svg.append('text').attr('x',x(4)+8).attr('y',y(6)).attr('dy','.35em').attr('fill',C.cas).style('font-size','12px').text('Atlas + Fujian: 10 − P');
+  svg.append('text').attr('x',x(4)+8).attr('y',y(8)).attr('dy','.35em').attr('fill',C.sub).style('font-size','12px').text('Sahel + Ivoire: 8');
+  svg.append('line').attr('x1',x(2)).attr('x2',x(2)).attr('y1',y(8)).attr('y2',H-M.b).attr('stroke',C.ink2).attr('stroke-dasharray','4 3');
+  svg.append('text').attr('x',x(2)+6).attr('y',H-M.b-8).attr('fill',C.ink2).style('font-size','11px').text('tie at P = 2');
+  const mk=svg.append('g');
+  function render(){mk.selectAll('*').remove();
+    mk.append('line').attr('x1',x(p)).attr('x2',x(p)).attr('y1',M.t+28).attr('y2',H-M.b).attr('stroke',C.ink2);
+    [[10-p,C.cas],[8,C.sub]].forEach(d=>mk.append('circle').attr('cx',x(p)).attr('cy',y(d[0])).attr('r',4.5).attr('fill',d[1]).attr('stroke',C.plane).attr('stroke-width',2));
+    const fill=10-p,win=fill>8?'fill':fill<8?'protect':'tie';
+    noteIn(n).html(`At <b>P = ${p}</b>: Atlas + Fujian scores ${d3.format('.1f')(fill)}, Sahel + Ivoire scores 8.0. `+
+      (win==='fill'?'<b>The system loads Atlas + Fujian and rolls Sahel a second time.</b>':win==='protect'?'<b>The system loads Sahel + Ivoire and keeps the promise.</b>':'The plans tie, and the solver picks either.'));}
+  seg(ctl(id),[1,1.5,2.5,3].map(v=>({key:v,label:'P = '+v})),p,k=>{p=k;render();});
+  render();
+  table(id,['Penalty P','Atlas + Fujian score','Sahel + Ivoire score','Chosen plan'],d3.range(0,4.01,.5).map(v=>[v.toFixed(1),(10-v).toFixed(1),'8.0',10-v>8?'Atlas + Fujian (Sahel rolled again)':10-v<8?'Sahel + Ivoire':'tie']));
+}
+
+/* ---------- Recommendation · who sails ---------- */
+function drawWho(){
+  const id='who',n=el(id);let rule='lex';
+  const rows=P.ex3,W=1100,rowH=24,M={t:10,r:150,b:44,l:250},H=M.t+rows.length*rowH+M.b;
+  const svg=svgIn(n,W,H),tip=tipFor(n);
+  const x=d3.scaleLinear([0,25],[M.l,W-M.r]),y=d3.scaleBand(rows.map(d=>d.id),[M.t,H-M.b]).padding(.28);
+  svg.append('g').selectAll('line').data(x.ticks(5)).join('line').attr('x1',d=>x(d)).attr('x2',d=>x(d)).attr('y1',M.t).attr('y2',H-M.b).attr('stroke',C.rule);
+  valueAxis(svg.append('g').attr('transform',`translate(0,${H-M.b})`).call(d3.axisBottom(x).ticks(5).tickPadding(8)));
+  svg.append('line').attr('x1',M.l).attr('x2',M.l).attr('y1',M.t).attr('y2',H-M.b).attr('stroke',C.axis);
+  svg.append('text').attr('x',(M.l+W-M.r)/2).attr('y',H-6).attr('text-anchor','middle').attr('fill',C.ink2).style('font-size','12px').text('TEU requested');
+  const lab=svg.append('g').selectAll('text').data(rows).join('text').attr('x',M.l-10).attr('y',d=>y(d.id)+y.bandwidth()/2).attr('dy','.35em')
+    .attr('text-anchor','end').attr('fill',C.ink2).style('font-size','12px');
+  lab.append('tspan').text(d=>d.name);
+  lab.append('tspan').attr('fill',C.ink3).text(d=>d.rolled?`  · rolled ${d.rolled}×`:'');
+  const bars=svg.append('g').selectAll('rect').data(rows).join('rect').attr('x',M.l).attr('y',d=>y(d.id)).attr('height',y.bandwidth()).attr('width',d=>x(d.teu)-M.l);
+  const st=svg.append('g').selectAll('text').data(rows).join('text').attr('x',d=>x(d.teu)+6).attr('y',d=>y(d.id)+y.bandwidth()/2).attr('dy','.35em').style('font-size','12px');
+  function render(){const R=P.rules3.find(r=>r.key===rule),L=new Set(R.loaded);
+    const status=d=>L.has(d.id)?'loaded':d.rolled>=1?'again':'first';
+    bars.attr('fill',d=>({loaded:C.sub,first:C.cas,again:C.red3})[status(d)])
+      .on('mousemove',(ev,d)=>tip.show(rws([['Cargo',d.cargo],['TEU',d.teu],['Times rolled before',d.rolled],['Decision',L.has(d.id)?'sails on SA2618E':`rolls (${ordinal(d.rolled+1)} roll)`]],d.name),ev)).on('mouseleave',()=>tip.hide());
+    st.text(d=>L.has(d.id)?d.teu:`${d.teu} · ${ordinal(d.rolled+1)} roll`).attr('fill',d=>status(d)==='again'?C.red3:status(d)==='first'?C.cas:C.ink2)
+      .style('font-weight',d=>status(d)==='loaded'?400:600);
+    const m=R.metrics;
+    noteIn(n).html(`<b>${R.label}:</b> ${m.teu} TEU loaded, ${m.empty} empty. Rolled again: ${m.repeat}. Native customers rolled: ${m.native}. Medical or spare parts rolled: ${m.c1+m.c2}.`);
+    table(id,['Booking','Customer','Cargo','TEU','Times rolled','Decision'],rows.map(d=>[d.id,d.name,d.cargo,d.teu,d.rolled,L.has(d.id)?'load':`roll (${ordinal(d.rolled+1)})`]));}
+  keys(n,[{color:C.sub,label:'Sails on SA2618E'},{color:C.cas,label:'Rolled for the first time'},{color:C.red3,label:'Rolled again'}]);
+  seg(ctl(id),P.rules3.map(r=>({key:r.key,label:r.label})),rule,k=>{rule=k;render();});
+  render();
+}
+
+/* ---------- static tables filled from the payload ---------- */
+function fillTables(){
+  const outOf=[4,3,200,2,3];
+  const rr=document.getElementById('rec-rows'); if(rr) rr.innerHTML=P.rules3.map(r=>{const m=r.metrics,cls=v=>v>0?' class="bad"':'';
+    return `<tr><td>${r.label}</td><td>${m.teu}</td><td>${m.empty}</td><td${cls(m.repeat)}>${m.repeat}</td><td>${m.native}</td><td${cls(m.c1+m.c2)}>${m.c1+m.c2}</td></tr>`;}).join('');
+}
+
+/* ---------- table toggles ---------- */
+document.querySelectorAll('.ghost.tbl').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.for,on=b.getAttribute('aria-pressed')!=='true';
+  b.setAttribute('aria-pressed',String(on));b.textContent=on?'Chart':'Table';el(id).classList.toggle('off',on);tvw(id).classList.toggle('on',on);}));
+
+[['wl',drawWL],['plans',drawPlans],['rules',drawRules],['cap2',drawCap2],['penalty',drawPenalty],['who',drawWho]].forEach(([id,f])=>{
+  try{f();}catch(e){el(id).innerHTML=`<p class="note">This chart could not be drawn: ${e.message}</p>`;}});
+try{fillTables();}catch(e){}
+/* ---------- code blocks: colour + copy button ---------- */
+function setupCode(){
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    const code=pre.querySelector('code'),source=code.textContent;
+    try{ if(window.hljs){code.classList.add('language-python');window.hljs.highlightElement(code);} }catch(e){}
+    const wrap=document.createElement('div');wrap.className='codewrap';pre.parentNode.insertBefore(wrap,pre);wrap.appendChild(pre);
+    const btn=document.createElement('button');btn.type='button';btn.className='ghost copybtn';btn.textContent='Copy code';
+    btn.setAttribute('aria-label','Copy this Python code');wrap.appendChild(btn);
+    const done=(label)=>{btn.textContent=label;btn.dataset.state='done';setTimeout(()=>{btn.textContent='Copy code';delete btn.dataset.state;},1800);};
+    btn.addEventListener('click',()=>{
+      const fallback=()=>{const r=document.createRange();r.selectNodeContents(code);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);done('Selected: press Ctrl+C');};
+      try{navigator.clipboard.writeText(source).then(()=>done('Copied'),fallback);}catch(e){fallback();}
+    });
+  });
+}
+try{setupCode();}catch(e){}
+
+
+/* ================= SIMULATION TAB ================= */
+const SIMX = (() => {
+  const coef = (b, k) => (k === 'r2' ? +(b.rolled >= 2) : k === 'r1' ? +(b.rolled === 1) : k === 'teu' ? b.teu : k === 'c1' ? +(b.cls === 1) : +(b.cls === 2));
+  const ORDERS = { A: ['r2', 'r1', 'teu'], B: ['r2', 'r1', 'teu', 'c1', 'c2'], C: ['r2', 'r1', 'c1', 'c2', 'teu'] };
+  /* One 0-1 integer program in javascript-lp-solver's model format (the PuLP-style model). */
+  function model(books, cap, objKey, locks, fixed) {
+    const m = { optimize: 'obj', opType: 'max', constraints: { cap: { max: cap } }, variables: {}, binaries: {}, options: { tolerance: 0 } };
+    locks.forEach(([k, v], q) => { m.constraints['lock' + q] = { min: v }; });
+    Object.keys(fixed).forEach(j => { m.constraints['fix' + j] = { equal: fixed[j] }; });
+    books.forEach((b, j) => {
+      const x = { obj: objKey ? coef(b, objKey) : 0, cap: b.teu };
+      locks.forEach(([k], q) => { x['lock' + q] = coef(b, k); });
+      if (j in fixed) x['fix' + j] = 1;
+      m.variables['x' + j] = x; m.binaries['x' + j] = 1;
+    });
+    return m;
+  }
+  /* Lexicographic optimisation: one solve per goal, locking each optimum, then the booking-order tie-break. */
+  function lex(books, cap, order) {
+    const locks = [], fixed = {};
+    for (const k of order) { const r = window.solver.Solve(model(books, cap, k, locks, fixed)); locks.push([k, Math.round(r.result || 0)]); }
+    for (let j = 0; j < books.length; j++) { fixed[j] = 1; if (!window.solver.Solve(model(books, cap, null, locks, fixed)).feasible) fixed[j] = 0; }
+    return new Set(Object.keys(fixed).filter(j => fixed[j]).map(Number));
+  }
+  function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function makeList(R, o, real) {
+    const int = (lo, hi) => lo + Math.floor(R() * (hi - lo + 1)), n = int(o.nMin, o.nMax), books = [];
+    for (let j = 0; j < n; j++) {
+      let n40, n20;
+      if (o.sizes === 'real') [n40, n20] = real[Math.floor(R() * real.length)];
+      else { do { n40 = int(0, 12); n20 = int(0, 6); } while (2 * n40 + n20 === 0); }
+      const u = R(), w = R();
+      books.push({ j, n40, n20, teu: 2 * n40 + n20, rolled: u < o.r2 ? 2 : u < o.r2 + o.r1 ? 1 : 0, cls: w < o.c1 ? 1 : w < o.c1 + o.c2 ? 2 : 3, opt: R() < o.optIn });
+    }
+    const tight = o.tLo + R() * (o.tHi - o.tLo);
+    return { books, tight, cap: Math.max(2, Math.round(books.reduce((s, b) => s + b.teu, 0) / tight)) };
+  }
+  function evaluate(L) {
+    const r = {};
+    for (const k of ['A', 'B', 'C']) {
+      const set = lex(L.books, L.cap, ORDERS[k]), out = L.books.filter(b => !set.has(b.j));
+      r[k] = { set, teu: L.books.filter(b => set.has(b.j)).reduce((s, b) => s + b.teu, 0), urgent: out.filter(b => b.cls < 3).length, medical: out.filter(b => b.cls === 1).length, repeat: out.filter(b => b.rolled >= 1).length };
+    }
+    r.changed = L.books.some(b => r.A.set.has(b.j) !== r.B.set.has(b.j));
+    const left = L.cap - r.B.teu, cand = L.books.filter(b => !r.B.set.has(b.j) && b.rolled === 0 && b.opt && b.teu > 0);
+    r.S = { left, ...splitStage(cand, left) };
+    return r;
+  }
+  /* Opt-in split: fill the space left by the whole-booking plan with whole containers from
+     new bookings whose customers allowed splitting. Stage 1: most TEU filled. Stage 2: fewest bookings split. */
+  function splitStage(cand, left) {
+    if (left <= 0 || !cand.length) return { fill: 0, splits: 0 };
+    const mk = (stage, fill) => {
+      const m = { optimize: stage === 1 ? 'fill' : 'nsplit', opType: stage === 1 ? 'max' : 'min', constraints: { cap: { max: left } }, variables: {}, ints: {}, options: { tolerance: 0 } };
+      if (stage === 2) m.constraints.fillmin = { min: fill };
+      cand.forEach(c => {
+        m.constraints['l40_' + c.j] = { max: 0 }; m.constraints['l20_' + c.j] = { max: 0 }; m.constraints['sb' + c.j] = { max: 1 };
+        m.variables['a' + c.j] = { fill: 2, cap: 2, fillmin: 2, ['l40_' + c.j]: 1 };
+        m.variables['d' + c.j] = { fill: 1, cap: 1, fillmin: 1, ['l20_' + c.j]: 1 };
+        m.variables['s' + c.j] = { nsplit: 1, ['l40_' + c.j]: -c.n40, ['l20_' + c.j]: -c.n20, ['sb' + c.j]: 1 };
+        m.ints['a' + c.j] = 1; m.ints['d' + c.j] = 1; m.ints['s' + c.j] = 1;
+      });
+      return m;
+    };
+    const fill = Math.round(window.solver.Solve(mk(1)).result || 0);
+    if (fill === 0) return { fill: 0, splits: 0 };
+    return { fill, splits: Math.round(window.solver.Solve(mk(2, fill)).result || 0) };
+  }
+  return { rng, makeList, evaluate, splitStage };
+})();
+
+const SIM_OPTS = {
+  lists: { 100: 100, 200: 200, 400: 400 },
+  n: { '3–10': [3, 10], '10–20': [10, 20], '10–35': [10, 35], '20–40': [20, 40] },
+  optIn: { '25%': 0.25, '50%': 0.5, '100%': 1 },
+  tight: { 'Mild': [1.05, 1.3], 'Mixed': [1.05, 2.0], 'Tight': [1.5, 2.5] },
+  urgent: { '10%': [0.04, 0.06], '25%': [0.10, 0.15], '40%': [0.16, 0.24] },
+  rolled: { '10%': [0.05, 0.05], '30%': [0.15, 0.15], '50%': [0.25, 0.25] },
+  sizes: { 'From the 27 real bookings': 'real', 'Fully random': 'random' },
+};
+const simState = { lists: '100', n: '10–35', optIn: '50%', tight: 'Mixed', urgent: '25%', rolled: '30%', sizes: 'From the 27 real bookings', ran: false, running: false, results: null, ex: 0 };
+
+function simSetup() {
+  [['sc-lists', 'lists'], ['sc-n', 'n'], ['sc-opt', 'optIn'], ['sc-tight', 'tight'], ['sc-urgent', 'urgent'], ['sc-rolled', 'rolled'], ['sc-sizes', 'sizes']].forEach(([id, key]) => {
+    seg(document.getElementById(id), Object.keys(SIM_OPTS[key]).map(k => ({ key: k, label: key === 'lists' ? k + ' lists' : k })), simState[key], k => { simState[key] = k; });
+  });
+  document.getElementById('sim-newseed').addEventListener('click', () => { document.getElementById('sim-seed').value = 1 + Math.floor(Math.random() * 999998); });
+  document.getElementById('sim-run').addEventListener('click', runSim);
+  seg(ctl('simbands'), [{ key: 'rolled', label: 'Urgent rolled' }, { key: 'changed', label: 'Lists changed' }], 'rolled', k => { simState.metric = k; drawSimBands(); });
+  simState.metric = 'rolled';
+  const exctl = d3.select(ctl('simex'));
+  exctl.append('button').attr('class', 'ghost').attr('type', 'button').attr('id', 'sim-prev').text('← Previous').on('click', () => { simState.ex--; drawSimExample(); });
+  exctl.append('button').attr('class', 'ghost').attr('type', 'button').attr('id', 'sim-next').text('Next →').on('click', () => { simState.ex++; drawSimExample(); });
+}
+
+async function runSim() {
+  if (simState.running) return;
+  const status = document.getElementById('sim-status'), bar = document.getElementById('sim-bar'), btn = document.getElementById('sim-run');
+  if (!window.solver || !window.solver.Solve) { status.textContent = 'The solver library could not load, so the simulation cannot run. Check your connection and reload the page.'; return; }
+  simState.running = true; btn.disabled = true; btn.textContent = 'Running…';
+  const N = SIM_OPTS.lists[simState.lists], [nMin, nMax] = SIM_OPTS.n[simState.n], [tLo, tHi] = SIM_OPTS.tight[simState.tight];
+  const [c1, c2] = SIM_OPTS.urgent[simState.urgent], [r2, r1] = SIM_OPTS.rolled[simState.rolled], sizes = SIM_OPTS.sizes[simState.sizes], optIn = SIM_OPTS.optIn[simState.optIn];
+  let seed = parseInt(document.getElementById('sim-seed').value, 10); if (!(seed > 0)) { seed = 2026; document.getElementById('sim-seed').value = seed; }
+  const o = { nMin, nMax, tLo, tHi, c1, c2, r2, r1, sizes, optIn }, real = [...P.ex2, ...P.ex3].map(b => [b.n40, b.n20]), R = SIMX.rng(seed), out = [];
+  const t0 = performance.now();
+  for (let i = 0; i < N; i++) {
+    const L = SIMX.makeList(R, o, real); out.push({ L, r: SIMX.evaluate(L) });
+    if (i % 3 === 2 || i === N - 1) { bar.style.width = ((i + 1) / N * 100) + '%'; status.textContent = `Solving list ${i + 1} of ${N}…`; await new Promise(res => setTimeout(res, 0)); }
+  }
+  simState.results = { out, o, N, seed, secs: (performance.now() - t0) / 1000 };
+  simState.ran = true; simState.running = false; simState.ex = 0; bar.style.width = '0'; btn.disabled = false; btn.textContent = 'Run simulation';
+  status.innerHTML = `<b>${N} lists solved</b> in ${simState.results.secs.toFixed(1)} s · seed ${seed} · bookings per list: ${simState.n} · over-booked: ${tLo}–${tHi}× · urgent cargo: ${simState.urgent} · already rolled: ${simState.rolled} · sizes: ${simState.sizes.toLowerCase()} · allow splitting: ${simState.optIn}.`;
+  drawSimResults();
+}
+
+function simBands() {
+  const { out, o } = simState.results, w = (o.tHi - o.tLo) / 4, f = d3.format('.2f'), E = d3.range(5).map(q => +f(o.tLo + q * w));
+  return d3.range(4).map(q => {
+    const lo = E[q], hi = E[q + 1], rows = out.filter(x => x.L.tight >= lo && (q === 3 ? x.L.tight <= hi : x.L.tight < hi));
+    return { label: `${f(lo)}–${f(hi)}×`, lists: rows.length, A: d3.sum(rows, x => x.r.A.urgent), B: d3.sum(rows, x => x.r.B.urgent), changed: rows.length ? d3.mean(rows, x => +x.r.changed) * 100 : 0 };
+  });
+}
+
+function drawSimResults() {
+  const { out, N } = simState.results, s = k => d3.sum(out, x => k(x));
+  const changed = s(x => +x.r.changed) / N * 100, uA = s(x => x.r.A.urgent), uB = s(x => x.r.B.urgent), mA = s(x => x.r.A.medical), mB = s(x => x.r.B.medical);
+  const lostB = s(x => x.r.A.teu - x.r.B.teu), lostC = s(x => x.r.B.teu - x.r.C.teu), listsC = s(x => +(x.r.B.teu > x.r.C.teu)), extraRep = s(x => x.r.B.repeat - x.r.A.repeat);
+  const urgentTotal = s(x => x.L.books.filter(b => b.cls < 3).length), capTotal = s(x => x.L.cap);
+  document.getElementById('k-changed').textContent = Math.round(changed) + '%';
+  document.getElementById('k-urgent').textContent = `${fmt(uA)} → ${fmt(uB)}`;
+  document.getElementById('k-medical').textContent = `${fmt(mA)} → ${fmt(mB)}`;
+  document.getElementById('k-cost').textContent = `${lostB} TEU`;
+  document.getElementById('k-cost-l').textContent = `TEU lost by ranking cargo class after TEU (our rule). Ranked before TEU instead: ${fmt(lostC)} TEU lost.`;
+  const cut = uA ? Math.round((1 - uB / uA) * 100) : 0;
+  document.getElementById('sim-lead').textContent = changed > 0
+    ? `Cargo class changed the plan in ${Math.round(changed)}% of ${N} simulated lists and cut urgent bookings rolled by ${cut}%, without losing a single TEU.`
+    : `Cargo class changed nothing in these ${N} lists: every urgent booking sailed anyway.`;
+  document.getElementById('sim-bullets').innerHTML = [
+    `Urgent bookings rolled fell from <b>${fmt(uA)}</b> to <b>${fmt(uB)}</b> out of ${fmt(urgentTotal)}; medical bookings from <b>${fmt(mA)}</b> to <b>${fmt(mB)}</b>.`,
+    `Ranking class after TEU lost <b>${lostB} TEU</b> and caused <b>${extraRep}</b> extra second rollovers, as the rule guarantees.`,
+    `Ranking class before TEU would cost <b>${fmt(lostC)} TEU</b> in ${listsC} of ${N} lists, ${(lostC / capTotal * 100).toFixed(2)}% of the space.`,
+  ].map(t => `<li>${t}</li>`).join('');
+  drawSimBands(); drawSimExample(); drawSplit();
+}
+
+function drawSplit() {
+  if (!simState.results) return;
+  const { out, N } = simState.results, s = k => d3.sum(out, x => k(x));
+  const gapLists = s(x => +(x.r.S.left > 0)), gap = s(x => x.r.S.left), filled = s(x => x.r.S.fill), splits = s(x => x.r.S.splits), cap = s(x => x.L.cap);
+  document.getElementById('ks-gap').textContent = Math.round(gapLists / N * 100) + '%';
+  document.getElementById('ks-teu').textContent = `${fmt(gap)} → ${fmt(gap - filled)}`;
+  document.getElementById('ks-splits').textContent = fmt(splits);
+  document.getElementById('ks-fill').textContent = gap ? Math.round(filled / gap * 100) + '%' : '–';
+  document.getElementById('ss-lead').textContent = gap === 0
+    ? `With these settings, whole bookings filled every ship: splitting had nothing to do.`
+    : `Whole bookings left ${fmt(gap)} TEU empty across ${N} lists. Opt-in splits recovered ${fmt(filled)} TEU by splitting ${fmt(splits)} bookings.`;
+  document.getElementById('ss-bullets').innerHTML = [
+    `<b>${Math.round(gapLists / N * 100)}%</b> of lists sail with empty space when bookings stay whole; the gap is <b>${(gap / cap * 100).toFixed(2)}%</b> of all free space.`,
+    `Splitting fills <b>${gap ? Math.round(filled / gap * 100) : 0}%</b> of that gap, about <b>${(splits / N).toFixed(2)}</b> split bookings per list.`,
+    `Fill rate rises from <b>${((cap - gap) / cap * 100).toFixed(2)}%</b> to <b>${((cap - gap + filled) / cap * 100).toFixed(2)}%</b>.`,
+  ].map(t => `<li>${t}</li>`).join('');
+  const id = 'simsplit', n = el(id), o = simState.results.o, w = (o.tHi - o.tLo) / 4, f = d3.format('.2f'), E = d3.range(5).map(q => +f(o.tLo + q * w));
+  const B = d3.range(4).map(q => { const lo = E[q], hi = E[q + 1], rows = out.filter(x => x.L.tight >= lo && (q === 3 ? x.L.tight <= hi : x.L.tight < hi));
+    return { label: `${f(lo)}–${f(hi)}×`, lists: rows.length, whole: d3.sum(rows, x => x.r.S.left), split: d3.sum(rows, x => x.r.S.left - x.r.S.fill), n: d3.sum(rows, x => x.r.S.splits) }; });
+  d3.select(n).selectAll('svg,.legend,p.note,.tip').remove();
+  const W = 1100, H = 300, M = { t: 24, r: 24, b: 56, l: 64 }, svg = svgIn(n, W, H), tip = tipFor(n);
+  const x0 = d3.scaleBand(B.map(d => d.label), [M.l, W - M.r]).padding(0.3), x1 = d3.scaleBand(['whole', 'split'], [0, x0.bandwidth()]).padding(0.08);
+  const y = d3.scaleLinear([0, Math.max(1, d3.max(B, d => d.whole))], [H - M.b, M.t]).nice();
+  svg.append('g').selectAll('line').data(y.ticks(5)).join('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', C.rule);
+  valueAxis(svg.append('g').attr('transform', `translate(${M.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(',d')).tickPadding(8)));
+  ax(svg.append('g').attr('transform', `translate(0,${H - M.b})`).call(d3.axisBottom(x0).tickSize(0).tickPadding(10)));
+  svg.append('text').attr('x', (M.l + W - M.r) / 2).attr('y', H - 8).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text('demand ÷ free space');
+  svg.append('text').attr('transform', `translate(14,${(M.t + H - M.b) / 2}) rotate(-90)`).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text('TEU left empty');
+  B.forEach(d => [['whole', C.cas], ['split', C.sub]].forEach(([k, col]) => {
+    const v = d[k], gx = x0(d.label) + x1(k);
+    svg.append('rect').attr('x', gx).attr('width', x1.bandwidth()).attr('y', y(v)).attr('height', y(0) - y(v)).attr('fill', col)
+      .on('mousemove', ev => tip.show(rws([['Lists', d.lists], ['Empty, whole bookings', fmt(d.whole)], ['Empty, with opt-in splits', fmt(d.split)], ['Bookings split', d.n]], d.label + ' over-booked'), ev)).on('mouseleave', () => tip.hide());
+    svg.append('text').attr('x', gx + x1.bandwidth() / 2).attr('y', y(v) - 7).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text(fmt(v));
+  }));
+  keys(n, [{ color: C.cas, label: 'Whole bookings only' }, { color: C.sub, label: 'With opt-in splits' }]);
+  noteIn(n).html(gap === 0 ? '<b>No empty space to fill</b> with these settings.' : `<b>${fmt(splits)} bookings split</b> in total to recover ${fmt(filled)} of ${fmt(gap)} empty TEU.`);
+  table(id, ['Over-booked', 'Lists', 'TEU empty, whole bookings', 'TEU empty, with opt-in splits', 'Bookings split'], B.map(d => [d.label, d.lists, d.whole, d.split, d.n]));
+}
+
+function drawSimBands() {
+  if (!simState.results) return;
+  const id = 'simbands', n = el(id), B = simBands(), metric = simState.metric;
+  d3.select(n).selectAll('svg,.legend,p.note,.tip').remove();
+  const W = 1100, H = 330, M = { t: 24, r: 24, b: 56, l: 64 }, svg = svgIn(n, W, H), tip = tipFor(n);
+  const x0 = d3.scaleBand(B.map(d => d.label), [M.l, W - M.r]).padding(0.3);
+  const series = metric === 'rolled' ? [['A', C.cas, 'Without cargo class'], ['B', C.sub, 'With cargo class']] : [['changed', C.sub, 'Lists where the plan changed']];
+  const x1 = d3.scaleBand(series.map(s => s[0]), [0, x0.bandwidth()]).padding(0.08);
+  const max = metric === 'rolled' ? d3.max(B, d => d.A) || 1 : 100;
+  const y = d3.scaleLinear([0, max], [H - M.b, M.t]).nice();
+  svg.append('g').selectAll('line').data(y.ticks(5)).join('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', C.rule);
+  valueAxis(svg.append('g').attr('transform', `translate(${M.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(metric === 'rolled' ? d3.format(',') : d => d + '%').tickPadding(8)));
+  ax(svg.append('g').attr('transform', `translate(0,${H - M.b})`).call(d3.axisBottom(x0).tickSize(0).tickPadding(10)));
+  svg.append('text').attr('x', (M.l + W - M.r) / 2).attr('y', H - 8).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text('demand ÷ free space');
+  svg.append('text').attr('transform', `translate(14,${(M.t + H - M.b) / 2}) rotate(-90)`).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text(metric === 'rolled' ? 'urgent bookings rolled' : 'share of lists changed');
+  B.forEach(d => {
+    series.forEach(([k, col, lab]) => {
+      const v = d[k], gx = x0(d.label) + x1(k);
+      svg.append('rect').attr('x', gx).attr('width', x1.bandwidth()).attr('y', y(v)).attr('height', y(0) - y(v)).attr('fill', col)
+        .on('mousemove', ev => tip.show(rws([['Lists in this band', d.lists], ['Urgent rolled without class', fmt(d.A)], ['Urgent rolled with class', fmt(d.B)], ['Lists changed', Math.round(d.changed) + '%']], d.label + ' over-booked'), ev)).on('mouseleave', () => tip.hide());
+      svg.append('text').attr('x', gx + x1.bandwidth() / 2).attr('y', y(v) - 7).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text(metric === 'rolled' ? fmt(v) : Math.round(v) + '%');
+    });
+  });
+  keys(n, series.map(s => ({ color: s[1], label: s[2] })));
+  noteIn(n).html(metric === 'rolled' ? '<b>The more over-booked the list,</b> the more urgent bookings risk rolling, and the more cargo class saves.' : '<b>Share of lists in each band</b> where at least one booking changes between A and B.');
+  table(id, ['Over-booked', 'Lists', 'Urgent rolled without class', 'Urgent rolled with class', 'Lists changed'], B.map(d => [d.label, d.lists, d.A, d.B, Math.round(d.changed) + '%']));
+}
+
+function drawSimExample() {
+  if (!simState.results) return;
+  const ch = simState.results.out.map((x, i) => ({ ...x, i })).filter(x => x.r.changed), tb = d3.select('#sim-ex tbody'), note = document.getElementById('sim-exnote');
+  const prev = document.getElementById('sim-prev'), next = document.getElementById('sim-next');
+  if (!ch.length) { tb.html(''); note.textContent = 'No list changed in this run.'; prev.disabled = next.disabled = true; return; }
+  simState.ex = (simState.ex + ch.length) % ch.length;
+  const x = ch[simState.ex], L = x.L, r = x.r, cls = k => (k === 1 ? '1 · medical' : k === 2 ? '2 · spare parts' : '3 · standard');
+  const diff = L.books.filter(b => r.A.set.has(b.j) !== r.B.set.has(b.j));
+  const dec = (set, b) => set.has(b.j) ? '<span class="good">sails</span>' : `<span class="bad">rolls${b.rolled ? ' (' + ordinal(b.rolled + 1) + ' time)' : ''}</span>`;
+  tb.html(diff.map(b => `<tr><td>#${b.j + 1}</td><td>${b.teu}</td><td>${b.rolled}</td><td>${cls(b.cls)}</td><td>${dec(r.A.set, b)}</td><td>${dec(r.B.set, b)}</td></tr>`).join(''));
+  note.innerHTML = `<b>Example ${simState.ex + 1} of ${ch.length}</b> · simulated list ${x.i + 1}: ${L.books.length} bookings, ${L.cap} TEU free, ${L.tight.toFixed(2)}× over-booked. Both plans load <b>${r.A.teu} TEU</b>; the other ${L.books.length - diff.length} bookings get the same decision.`;
+  prev.disabled = next.disabled = ch.length < 2;
+}
+
+/* ================= TABS (hash routing) ================= */
+function showView() {
+  const sim = location.hash === '#simulation';
+  document.getElementById('view-report').hidden = sim;
+  document.getElementById('view-simulation').hidden = !sim;
+  document.querySelectorAll('.tabs a').forEach(a => { if ((a.dataset.view === 'simulation') === sim) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  if (sim && !simState.ran && !simState.running) runSim();
+}
+try { simSetup(); } catch (e) { const s = document.getElementById('sim-status'); if (s) s.textContent = 'The simulation could not be set up: ' + e.message; }
+window.addEventListener('hashchange', () => { showView(); if (location.hash === '#simulation' || location.hash === '#report') window.scrollTo(0, 0); });
+showView();
+</script>
+
+</body></html>
