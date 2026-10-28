@@ -225,6 +225,96 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
 .kpi .n{font-family:Chivo,system-ui,sans-serif;font-weight:700;font-size:34px;letter-spacing:-.028em;line-height:1;font-variant-numeric:tabular-nums}
 .kpi .n.red{color:var(--cas)}.kpi .n.blue{color:var(--sub)}.kpi .n.violet{color:var(--violet)}
 .kpi .l{font-size:var(--fs-sm);color:var(--ink-3);margin-top:7px;line-height:1.4}
+/* ---------- management deck (design spec §8.2), scoped to the deck tab ---------- */
+.deckwrap{--back:#39424b;--paper:#f7f9fa;position:relative;background:var(--back);width:100%;aspect-ratio:1280/800;max-height:calc(100vh - 40px);min-height:240px;overflow:hidden;margin:26px 0 30px;outline:none;user-select:none;touch-action:pan-y}
+.deckwrap:focus-visible{outline:2px solid var(--cas);outline-offset:2px}
+.deckwrap:fullscreen{width:100vw;height:100vh;max-height:none;aspect-ratio:auto;margin:0}
+.deckwrap:-webkit-full-screen{width:100vw;height:100vh;max-height:none;margin:0}
+.dk-bar{position:absolute;top:0;left:0;height:3px;width:0;background:var(--cas);z-index:5;transition:width .18s ease}
+.dk-num{position:absolute;bottom:10px;right:16px;font-size:11.5px;color:#8b97a2;letter-spacing:.04em;font-variant-numeric:tabular-nums;z-index:5}
+.dk-nav{position:absolute;left:14px;bottom:8px;z-index:6;display:flex;align-items:center;gap:7px}
+.dk-nav button{width:30px;height:28px;border:1px solid #4a555f;background:rgba(255,255,255,.06);color:#c3ccd4;font:inherit;font-size:17px;line-height:1;cursor:pointer;padding:0;border-radius:2px}
+.dk-nav button:hover{background:#c3ccd4;color:#1b2126;border-color:#c3ccd4}
+.dk-nav button:disabled{opacity:.35;cursor:default;background:transparent;color:#6b7681;border-color:#3c464f}
+.dk-nav #dk-fs{font-size:14px}
+.dk-hint{font-size:11.5px;color:#8b97a2;letter-spacing:.04em;margin-left:6px}
+.dk-hint kbd{font:inherit;border:1px solid #4a555f;border-radius:2px;padding:0 5px;margin:0 2px;color:#aab5bf}
+@media(max-width:640px){.dk-hint{display:none}}
+
+#deckstage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:top left}
+#deckstage .slide{position:absolute;inset:0;display:none;flex-direction:column;background:var(--plane);border:1px solid rgba(0,0,0,.28);box-shadow:0 20px 54px rgba(0,0,0,.45);padding:46px 58px 40px;font-size:16px;line-height:1.45;overflow:hidden;color:var(--ink)}
+#deckstage .slide.on{display:flex}
+#deckstage .slide::after{content:"";position:absolute;left:58px;right:58px;top:0;height:3px;background:var(--ink);opacity:.9}
+#deckstage p{margin:0}
+#deckstage .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:0}
+#deckstage .shead{flex:none;margin-bottom:20px}
+#deckstage .shead .eyebrow,#deckstage .dk-red{color:var(--cas)}
+#deckstage h2{font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:30px;line-height:1.12;letter-spacing:-.022em;margin:9px 0 0;text-wrap:balance}
+#deckstage .sub{font-size:13px;color:var(--ink-3);margin-top:8px}
+#deckstage .sbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
+#deckstage .sofar{flex:none;margin-top:16px;padding-top:14px;border-top:2px solid var(--ink);font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:17px;line-height:1.35;letter-spacing:-.012em}
+#deckstage b{font-weight:600;color:var(--ink)}
+
+/* title and closing */
+#deckstage .dk-title{justify-content:center;background:var(--ink);border-color:var(--ink);color:var(--paper)}
+#deckstage .dk-title::after{display:none}
+#deckstage .dk-title .eyebrow{color:#7f8b96}
+#deckstage .dk-title h1{font-family:Chivo,system-ui,sans-serif;font-weight:700;font-size:78px;line-height:1.02;letter-spacing:-.042em;color:var(--paper);margin:24px 0 0;max-width:15ch;text-wrap:balance}
+#deckstage .dk-deck{font-size:20px;color:#b9c3cc;margin-top:22px;max-width:56ch;line-height:1.4}
+#deckstage .dk-who{font-family:Chivo,system-ui,sans-serif;font-weight:600;color:var(--paper);margin-top:40px;font-size:17px}
+#deckstage .dk-meta{display:flex;flex-wrap:wrap;gap:5px 36px;margin-top:12px;font-size:12.5px;color:#8b97a2}
+#deckstage .dk-meta b{color:#b9c3cc}
+#deckstage .dk-close{font-family:Chivo,system-ui,sans-serif;font-weight:700;font-size:48px;line-height:1.1;letter-spacing:-.03em;color:var(--paper);margin-top:22px;max-width:20ch}
+#deckstage .dk-asks{margin:34px 0 0;padding:0;list-style:none;counter-reset:ask;display:grid;gap:14px;max-width:90ch}
+#deckstage .dk-asks li{counter-increment:ask;position:relative;padding-left:40px;font-size:17px;line-height:1.45;color:#b9c3cc}
+#deckstage .dk-asks li::before{content:counter(ask);position:absolute;left:0;top:0;width:26px;height:26px;display:grid;place-items:center;background:var(--cas);color:#fff;font-size:13px;font-weight:700}
+#deckstage .dk-asks b{color:var(--paper)}
+
+/* statement */
+#deckstage .dk-statement{justify-content:center}
+#deckstage .dk-big{font-family:Chivo,system-ui,sans-serif;font-weight:700;font-size:42px;line-height:1.14;letter-spacing:-.03em;max-width:24ch;margin-top:18px}
+#deckstage .dk-sup{font-size:18px;color:var(--ink-2);margin-top:26px;max-width:70ch;line-height:1.5}
+
+/* layouts */
+#deckstage .dk-mid{justify-content:center}
+#deckstage .dk-stat{display:grid;grid-template-columns:repeat(4,1fr);gap:26px 36px}
+#deckstage .dk-stat .n{font-family:Chivo,system-ui,sans-serif;font-size:44px;font-weight:700;letter-spacing:-.032em;line-height:1;font-variant-numeric:tabular-nums}
+#deckstage .dk-stat .n.red{color:var(--cas)}#deckstage .dk-stat .n.blue{color:var(--sub)}#deckstage .dk-stat .n.violet{color:var(--violet)}
+#deckstage .dk-stat .l{font-size:14px;color:var(--ink-2);margin-top:10px;line-height:1.45}
+#deckstage .dk-brief{justify-content:center;gap:40px}
+#deckstage .dk-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0 34px;border-top:1px solid var(--rule);padding-top:16px}
+#deckstage .dk-strip .pt{position:relative;padding-left:19px;font-size:14.5px;color:var(--ink-2);line-height:1.45}
+#deckstage .dk-strip .pt::before{content:"";position:absolute;left:0;top:.64em;width:9px;height:1px;background:var(--axis)}
+#deckstage .dk-cols2{display:grid;grid-template-columns:1fr 1fr;gap:28px 48px}
+#deckstage .dk-cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px 36px}
+#deckstage .dk-card{border-top:2px solid var(--ink);padding-top:12px}
+#deckstage .dk-card p{font-size:15px;color:var(--ink-2);line-height:1.5}
+#deckstage .dk-lab{font-size:11px!important;letter-spacing:.14em;text-transform:uppercase;color:var(--cas)!important;font-weight:600;margin-bottom:8px!important}
+#deckstage .dk-lead{font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:21px!important;letter-spacing:-.018em;line-height:1.25;color:var(--ink)!important;margin-bottom:10px!important}
+#deckstage .dk-opt{border-top:2px solid var(--rule);padding-top:13px;display:flex;flex-direction:column}
+#deckstage .dk-opt.rec{border-top-color:var(--rec)}
+#deckstage .dk-olab{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+#deckstage .dk-opt.rec .dk-olab{color:var(--rec)}
+#deckstage .dk-opt h3{font-family:Chivo,system-ui,sans-serif;font-size:20px;font-weight:600;letter-spacing:-.015em;line-height:1.2;margin:9px 0 10px}
+#deckstage .dk-opt p{font-size:14.5px;color:var(--ink-2);line-height:1.5}
+#deckstage .dk-opt .dk-v{margin-top:auto;padding-top:14px;font-size:13.5px}
+#deckstage .dk-table{width:100%;border-collapse:collapse;font-size:15px}
+#deckstage .dk-table th,#deckstage .dk-table td{text-align:left;padding:10px 18px 10px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+#deckstage .dk-table thead th{font-weight:600;font-size:13px;color:var(--ink);border-bottom:1px solid var(--ink)}
+#deckstage .dk-table td{color:var(--ink-2)}#deckstage .dk-table td:first-child{color:var(--ink);font-weight:600}
+
+/* chart + reading rail */
+#deckstage .dk-split{flex-direction:row;gap:34px}
+#deckstage .dk-fig{flex:1 1 62%;min-width:0;display:flex;flex-direction:column}
+#deckstage .dk-ctl{flex:none;margin-bottom:8px;min-height:30px}
+#deckstage .dk-plot{flex:1;min-height:0;display:flex;flex-direction:column}
+#deckstage .dk-plot svg{flex:1;min-height:0;width:100%;height:100%}
+#deckstage .dk-rail{flex:0 0 33%;display:flex;flex-direction:column;gap:14px;border-left:1px solid var(--rule);padding-left:26px}
+#deckstage .dk-blist{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+#deckstage .dk-blist li{position:relative;padding-left:19px;color:var(--ink-2);font-size:14.5px;line-height:1.45}
+#deckstage .dk-blist li::before{content:"";position:absolute;left:0;top:.64em;width:9px;height:1px;background:var(--axis)}
+#deckstage .dk-punch{font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:19px;line-height:1.28;letter-spacing:-.014em;margin-top:auto!important;padding-top:14px;border-top:2px solid var(--ink)}
+@media (prefers-reduced-motion:reduce){.dk-bar{transition:none}}
 .codewrap{position:relative;margin:8px 0 0}
 .codewrap .code{margin:0;padding-top:40px}
 .copybtn{position:absolute;top:8px;right:8px;z-index:2;background:#f7f9fa}
@@ -259,7 +349,7 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
   <p class="eyebrow">About this page</p>
   <div class="cols">
     <p>Kling Shipping is moving container bookings online. When a ship is full, new bookings go onto a <strong>waiting list</strong>. Just before the container-yard cut-off, operations confirm how much space is left, and the system must decide who on the list sails and who is <strong>rolled</strong> to next week's ship. Management's one firm principle: being rolled once is acceptable, being rolled twice is a serious service failure.</p>
-    <p>This page answers the six assignment questions in order, using the two waiting lists in the case: <strong>Exhibit 2</strong> (10 TEU free, 5 bookings) and <strong>Exhibit 3</strong> (200 TEU free, 22 bookings). Every number was checked by enumeration or solved exactly. The charts are live: switch the controls to compare rules, and press <strong>Table</strong> on any chart to see the data behind it. A second tab, <strong>Simulation</strong>, tests the two extra steps (cargo class and opt-in splitting) on hundreds of random waiting lists.</p>
+    <p>This page answers the six assignment questions in order, using the two waiting lists in the case: <strong>Exhibit 2</strong> (10 TEU free, 5 bookings) and <strong>Exhibit 3</strong> (200 TEU free, 22 bookings). Every number was checked by enumeration or solved exactly. The charts are live: switch the controls to compare rules, and press <strong>Table</strong> on any chart to see the data behind it. The <strong>Management deck</strong> tab presents the case as fifteen slides, and the <strong>Simulation</strong> tab tests the two extra steps (cargo class and opt-in splitting) on hundreds of random waiting lists.</p>
   </div>
 </aside>
 
@@ -270,7 +360,7 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
     <li><b>Frame the request.</b> A rule the system runs on every voyage, not one answer for one ship. VIP customers are served upstream, so the waiting list shares only the leftovers.</li>
     <li><b>Write the three sentences.</b> Objective, decisions and constraints, with the objective as a ranked list because the goals compete, and cargo type as a tie-break.</li>
     <li><b>Build and test rules.</b> Priority-first, utilisation-first and a tiered optimal rule, solved exactly on both exhibits.</li>
-    <li class="loop"><b>Challenge fairness.</b> Customers who chose a voyage lose out to customers rolled into it. We tested native-first and went back to step 3.</li>
+    <li><b>Challenge fairness.</b> Customers who chose a voyage lose out to customers rolled into it. We tested native-first and went back to step 3.</li>
     <li><b>Price the trade-offs.</b> TEU left empty, customers rolled, and second rollovers caused, for every rule.</li>
     <li><b>Look beyond the algorithm.</b> Deposits, paid guaranteed space, transparency, and a pilot with KPIs.</li>
   </ol>
@@ -278,6 +368,7 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
 
 <nav class="tabs" aria-label="Page views">
   <a href="#report" data-view="report">Case report</a>
+  <a href="#deck" data-view="deck">Management deck</a>
   <a href="#simulation" data-view="simulation">Simulation: cargo class and splitting</a>
 </nav>
 
@@ -922,6 +1013,245 @@ for f in stages:
 </footer>
 </div>
 
+<div id="view-deck" hidden>
+<header class="masthead">
+  <p class="eyebrow">BMX5102 Business Analytics · Kling Shipping · management briefing</p>
+  <h1>Management deck</h1>
+  <p class="deck">The case in fifteen slides, written for Kling's management. <strong>Use the arrow keys, click the left or right side of a slide, or swipe</strong> to move; press <strong>F</strong> or the full-screen button to present.</p>
+  <p class="byline">Peh Shao Hong (A0077294U)</p>
+</header>
+
+<nav class="tabs" aria-label="Page views">
+  <a href="#report" data-view="report">Case report</a>
+  <a href="#deck" data-view="deck">Management deck</a>
+  <a href="#simulation" data-view="simulation">Simulation: cargo class and splitting</a>
+</nav>
+
+<div class="deckwrap" id="deckwrap" tabindex="0" aria-roledescription="slide deck" aria-label="Management deck">
+  <div class="dk-bar" id="dk-bar"></div>
+  <div id="deckstage">
+
+    <!-- 1 · title -->
+    <div class="slide dk-title" data-title="Title">
+      <p class="eyebrow">BMX5102 · Kling Shipping · management briefing</p>
+      <h1>Who sails when the ship is full</h1>
+      <p class="dk-deck">A waiting-list rule the booking system can run on every voyage: full ships, and no customer rolled twice.</p>
+      <p class="dk-who">Peh Shao Hong (A0077294U)</p>
+      <div class="dk-meta"><span><b>Role</b> Chen Yong, Head of the Digital Systems Office</span><span><b>Route</b> Shanghai → Abidjan, weekly</span><span><b>Data</b> Exhibits 2 and 3</span></div>
+    </div>
+
+    <!-- 2 · the problem -->
+    <div class="slide dk-statement" data-title="The problem">
+      <p class="eyebrow dk-red">The problem</p>
+      <p class="dk-big">Two days a week of arguing becomes one rule the system runs on every voyage.</p>
+      <p class="dk-sup">When a ship is full, bookings wait. Just before cut-off, the system must decide who sails and who rolls to next week's ship. Management has set one firm principle: <b>one rollover is acceptable, two is a serious service failure.</b> Everything else is ours to propose.</p>
+    </div>
+
+    <!-- 3 · situation -->
+    <div class="slide" data-title="The situation">
+      <div class="shead"><p class="eyebrow">The situation · Exhibit 3</p><h2>The backlog is already here</h2><p class="sub">SA2618E, two days before cut-off: 22 bookings on the waiting list</p></div>
+      <div class="sbody dk-mid">
+        <div class="dk-stat">
+          <div><div class="n blue">248 → 200</div><div class="l">TEU requested against TEU free: 48 TEU must roll</div></div>
+          <div><div class="n red">4</div><div class="l">bookings already rolled twice: the serious failure is happening today</div></div>
+          <div><div class="n red">3</div><div class="l">bookings rolled once, one step from it</div></div>
+          <div><div class="n violet">1</div><div class="l">firm principle from management: nobody rolled a second time</div></div>
+        </div>
+      </div>
+      <p class="sofar">Without a clear rule, the same customers keep waiting.</p>
+    </div>
+
+    <!-- 4 · the clash (chart) -->
+    <div class="slide" data-title="The clash">
+      <div class="shead"><p class="eyebrow">The clash · Exhibit 2</p><h2>On a small leftover, filling the ship means rolling Sahel twice</h2><p class="sub">SA2612E: 10 TEU free, five bookings, Sahel Minerals already rolled once</p></div>
+      <div class="sbody dk-split">
+        <div class="dk-fig"><div class="dk-ctl" id="dk-ctl-cap"></div><div class="dk-plot" id="dk-plot-cap"></div></div>
+        <aside class="dk-rail">
+          <p class="eyebrow">What each rule does</p>
+          <ul class="dk-blist">
+            <li><b>(a) Priority-first:</b> Sahel + Ivoire, 8 TEU, nobody rolled twice.</li>
+            <li><b>(b) Utilisation-first:</b> Atlas + Fujian, 10 TEU, Sahel rolled again.</li>
+            <li><b>Opt-in split:</b> one 40-ft box from Atlas fills the last 2 TEU.</li>
+          </ul>
+          <p class="dk-punch">The promise costs 2 TEU: about 0.1% of the ship.</p>
+        </aside>
+      </div>
+    </div>
+
+    <!-- 5 · three sentences -->
+    <div class="slide" data-title="Three sentences">
+      <div class="shead"><p class="eyebrow">How we framed it</p><h2>Every rule is three sentences: what is best, what we decide, what we must respect</h2></div>
+      <div class="sbody dk-mid">
+        <div class="dk-cols3">
+          <div class="dk-card"><p class="dk-lab">Objective</p><p class="dk-lead">A ranked list of goals</p><p>No second rollover → fill the ship → urgent cargo → booking order. Each goal is met as fully as possible before the next is considered.</p></div>
+          <div class="dk-card"><p class="dk-lab">Decisions</p><p class="dk-lead">Load or roll each booking</p><p>One yes/no decision per booking on the waiting list: it sails on this voyage, or it rolls to the next one.</p></div>
+          <div class="dk-card"><p class="dk-lab">Constraints</p><p class="dk-lead">Space and whole bookings</p><p>TEU loaded never exceeds the space operations confirm. A booking sails whole, unless its customer agreed to split it.</p></div>
+        </div>
+      </div>
+      <p class="sofar">Ranking the goals is the management decision; the solver does the rest.</p>
+    </div>
+
+    <!-- 6 · the rule -->
+    <div class="slide dk-statement" data-title="The rule">
+      <p class="eyebrow dk-red">Our recommendation</p>
+      <p class="dk-big">Customers who have already waited go first. Then we fill the ship. Then urgent cargo. Then whoever booked earlier.</p>
+      <p class="dk-sup">One sentence a clerk can say to any customer. Behind it, the system solves the goals one at a time and locks each in before the next (<b>lexicographic optimisation</b>), so a lower goal can never undo a higher one.</p>
+    </div>
+
+    <!-- 7 · tested at scale (chart) -->
+    <div class="slide" data-title="Tested at scale">
+      <div class="shead"><p class="eyebrow">Tested at scale · Exhibit 3</p><h2>Only the recommended rule fills all 200 TEU and rolls nobody twice</h2><p class="sub">Four rules on the 22 bookings of SA2618E; switch the measure</p></div>
+      <div class="sbody dk-split">
+        <div class="dk-fig"><div class="dk-ctl" id="dk-ctl-rules"></div><div class="dk-plot" id="dk-plot-rules"></div></div>
+        <aside class="dk-rail">
+          <p class="eyebrow">The alternatives</p>
+          <ul class="dk-blist">
+            <li><b>Fill only:</b> 200 TEU, but pushes Bamako Cement and Yamoussoukro Pharma (medical) to a third roll.</li>
+            <li><b>Native customers first:</b> 3 customers rolled a second time, 7 TEU empty.</li>
+            <li><b>Greedy priority:</b> 10 TEU empty and excavator spare parts rolled.</li>
+          </ul>
+          <p class="dk-punch">Recommended: 200 TEU, no second rollovers, all urgent cargo sails.</p>
+        </aside>
+      </div>
+    </div>
+
+    <!-- 8 · why the promise matters -->
+    <div class="slide" data-title="The customer's view">
+      <div class="shead"><p class="eyebrow">Why the promise matters</p><h2>A second rollover is a broken promise, and on this lane it costs us the customer</h2></div>
+      <div class="sbody dk-mid">
+        <div class="dk-cols2">
+          <div class="dk-card"><p class="dk-lab">A competitive lane</p><p>Rival carriers already sail Shanghai and Ningbo to Abidjan every week. A customer rolled twice can book a rival's next sailing.</p></div>
+          <div class="dk-card"><p class="dk-lab">Repeat customers</p><p>Sahel Minerals ships regularly. Losing it loses every future booking, not just this one.</p></div>
+          <div class="dk-card"><p class="dk-lab">Price against waiting time</p><p>Customers accept a cheaper, slower option all the time. <b>A wait they choose is a deal</b>, so voluntary rolls should not count toward the limit.</p></div>
+          <div class="dk-card"><p class="dk-lab">How often the route sails</p><p>Two rolls on the weekly SA service cost about 14 days; on the three-times-weekly SL service, about 5. Limits could be set in days late.</p></div>
+        </div>
+      </div>
+      <p class="sofar">That is why the promise ranks first, not as a small penalty in a formula.</p>
+    </div>
+
+    <!-- 9 · why not a penalty (chart) -->
+    <div class="slide" data-title="Why not a penalty">
+      <div class="shead"><p class="eyebrow">Why not a penalty? · Exhibit 2</p><h2>A penalty weight hides the decision inside a number</h2><p class="sub">Weighted score of the two plans as the penalty P for rolling Sahel again changes; pick a value</p></div>
+      <div class="sbody dk-split">
+        <div class="dk-fig"><div class="dk-ctl" id="dk-ctl-pen"></div><div class="dk-plot" id="dk-plot-pen"></div></div>
+        <aside class="dk-rail">
+          <p class="eyebrow">What goes wrong</p>
+          <ul class="dk-blist">
+            <li>Below <b>P = 2</b> the system rolls Sahel again without anyone deciding to.</li>
+            <li>The right P changes with every voyage, and nobody can explain it to a customer.</li>
+            <li>A hard rule instead has no answer on a week when rolled cargo exceeds the space.</li>
+          </ul>
+          <p class="dk-punch">Rank the promise first, openly.</p>
+        </aside>
+      </div>
+    </div>
+
+    <!-- 10 · cargo class -->
+    <div class="slide" data-title="Cargo class">
+      <div class="shead"><p class="eyebrow">An extra step we added · cargo class</p><h2>Ranking urgent cargo after the fill goal protects it at no cost</h2><p class="sub">400 simulated waiting lists like Exhibit 3, each solved with and without cargo class</p></div>
+      <div class="sbody dk-brief">
+        <div class="dk-stat">
+          <div><div class="n blue">70%</div><div class="l">of lists where cargo class changed the plan</div></div>
+          <div><div class="n red">676 → 100</div><div class="l">urgent bookings rolled (medical and spare parts)</div></div>
+          <div><div class="n red">270 → 27</div><div class="l">medical bookings rolled</div></div>
+          <div><div class="n violet">0 TEU</div><div class="l">space lost, and no extra second rollovers</div></div>
+        </div>
+        <div class="dk-strip">
+          <div class="pt"><b>Medical first, then spare parts</b> for machines already in service; everything else is standard.</div>
+          <div class="pt"><b>Classified from shipping documents,</b> never from a customer saying "urgent".</div>
+          <div class="pt"><b>The downside:</b> it needs an agreed class list and an owner for borderline cases.</div>
+        </div>
+      </div>
+      <p class="sofar">On the two case voyages it changed nothing; across 400 lists it changed most plans.</p>
+    </div>
+
+    <!-- 11 · splitting -->
+    <div class="slide" data-title="Splitting">
+      <div class="shead"><p class="eyebrow">Splitting · Q5</p><h2>Splitting only matters on short lists, so it should be the customer's choice</h2><p class="sub">100 simulated waiting lists for each list length, solved with whole bookings and with opt-in splits</p></div>
+      <div class="sbody dk-brief">
+        <div class="dk-stat">
+          <div><div class="n red">49%</div><div class="l">of short lists (3–10 bookings, like Exhibit 2) sail with space empty</div></div>
+          <div><div class="n blue">67%</div><div class="l">of that empty space recovered by opt-in splits</div></div>
+          <div><div class="n violet">0.3</div><div class="l">bookings split per list to do it</div></div>
+          <div><div class="n blue">6%</div><div class="l">of long lists (like Exhibit 3) ever leave a gap</div></div>
+        </div>
+        <div class="dk-strip">
+          <div class="pt"><b>Whole by default.</b> Nothing is split without the customer's consent.</div>
+          <div class="pt"><b>A "flexible" flag at booking,</b> with a small discount for customers who opt in.</div>
+          <div class="pt"><b>Never split a rolled booking;</b> any remainder keeps its place in the queue.</div>
+        </div>
+      </div>
+      <p class="sofar">Whole bookings by default; opt-in splits fill the last gap.</p>
+    </div>
+
+    <!-- 12 · around the rule -->
+    <div class="slide" data-title="Around the rule">
+      <div class="shead"><p class="eyebrow">Beyond the algorithm · Q6</p><h2>Four policies stop the gaming and give urgent cargo certainty</h2></div>
+      <div class="sbody dk-mid">
+        <div class="dk-cols2">
+          <div class="dk-card"><p class="dk-lab">Readiness check</p><p>Priority only for cargo ready by cut-off. This stops "rollover farming": booking a full ship just to jump the queue next week.</p></div>
+          <div class="dk-card"><p class="dk-lab">Deposits</p><p>Refunded in full if Kling rolls the cargo; forfeited on a no-show or late cancellation. Cuts speculative bookings.</p></div>
+          <div class="dk-card"><p class="dk-lab">Paid guaranteed space</p><p>One published price anyone can pay, capped at about 15–20% of open capacity, refunded with compensation if Kling fails to load. Unlike VIP status, open to all.</p></div>
+          <div class="dk-card"><p class="dk-lab">Transparency and choice</p><p>Show customers the real queue at booking, offer a free-cancel option for date-critical cargo, and ask for volunteers before rolling anyone.</p></div>
+        </div>
+      </div>
+      <p class="sofar">If the priority tier keeps growing, the problem is capacity, not the algorithm.</p>
+    </div>
+
+    <!-- 13 · options -->
+    <div class="slide" data-title="The options">
+      <div class="shead"><p class="eyebrow">The decision</p><h2>Three ways to run the waiting list</h2></div>
+      <div class="sbody dk-mid">
+        <div class="dk-cols3">
+          <div class="dk-opt"><p class="dk-olab">Option 1</p><h3>Fill the ship first</h3><p>The combination that loads the most TEU, ignoring history.</p><p class="dk-v"><b>Against:</b> can push twice-rolled customers, including medical cargo, to a third roll.</p></div>
+          <div class="dk-opt"><p class="dk-olab">Option 2</p><h3>Customers who chose the voyage first</h3><p>Native bookings outrank everyone rolled in from earlier voyages.</p><p class="dk-v"><b>Against:</b> 3 second rollovers and 7 TEU empty on Exhibit 3; the wait concentrates on the same customers.</p></div>
+          <div class="dk-opt rec"><p class="dk-olab">Option 3 · Recommended</p><h3>Tiered priority, solved goal by goal</h3><p>Rolled twice, rolled once, fill, urgent cargo, booking order. Opt-in splits fill the last gap.</p><p class="dk-v"><b>For:</b> full ship, no second rollovers, everyone waits at most once.</p></div>
+        </div>
+      </div>
+      <p class="sofar">Option 3 keeps the promise and, on realistic lists, costs no space.</p>
+    </div>
+
+    <!-- 14 · rollout -->
+    <div class="slide" data-title="Rollout">
+      <div class="shead"><p class="eyebrow">Rollout</p><h2>Pilot on the weekly SA service and judge it by six numbers</h2><p class="sub">The weekly service is where a rollover costs most, so the effect is easiest to see</p></div>
+      <div class="sbody dk-mid">
+        <table class="dk-table">
+          <thead><tr><th>Measure</th><th>Target</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>Second rollovers</td><td>0, each one reported</td><td>Management's stated red line</td></tr>
+            <tr><td>Fill rate of final online space</td><td>at least 98%</td><td>Shows fairness is not costing space</td></tr>
+            <tr><td>TEU left empty because of priority</td><td>reported weekly</td><td>The price of the rule, kept visible</td></tr>
+            <tr><td>Medical bookings rolled</td><td>0, each one reviewed</td><td>Protects the public commitment</td></tr>
+            <tr><td>Size of the priority tier</td><td>alert above 50% of space</td><td>Early warning of a capacity problem</td></tr>
+            <tr><td>Clerk overrides</td><td>logged, reviewed monthly</td><td>Stops exceptions becoming the new arguments</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="sofar">Review after eight sailings, then extend to the twice- and three-times-weekly services.</p>
+    </div>
+
+    <!-- 15 · the ask -->
+    <div class="slide dk-title" data-title="The ask">
+      <p class="eyebrow">The ask</p>
+      <p class="dk-close">The optimisation is cheap. The definition of fairness is the decision.</p>
+      <ol class="dk-asks">
+        <li><b>Approve the ranked rule:</b> already-rolled customers first, then fill, then urgent cargo, then booking order.</li>
+        <li><b>Approve the supporting policies:</b> readiness check, deposits, opt-in splits and capped paid guaranteed space.</li>
+        <li><b>Approve a pilot</b> on the SA service, reviewed after eight sailings against the six measures.</li>
+      </ol>
+    </div>
+
+  </div>
+  <div class="dk-nav" id="dk-nav">
+    <button type="button" id="dk-prev" aria-label="Previous slide">‹</button>
+    <button type="button" id="dk-next" aria-label="Next slide">›</button>
+    <button type="button" id="dk-fs" aria-label="Full screen">⤢</button>
+    <span class="dk-hint"><kbd>←</kbd><kbd>→</kbd> or click to move · <kbd>F</kbd> full screen</span>
+  </div>
+  <div class="dk-num" id="dk-num">1 / 15</div>
+</div>
+</div>
+
 <div id="view-simulation" hidden>
 <header class="masthead">
   <p class="eyebrow">BMX5102 Business Analytics · Kling Shipping · simulation</p>
@@ -945,6 +1275,7 @@ for f in stages:
 
 <nav class="tabs" aria-label="Page views">
   <a href="#report" data-view="report">Case report</a>
+  <a href="#deck" data-view="deck">Management deck</a>
   <a href="#simulation" data-view="simulation">Simulation: cargo class and splitting</a>
 </nav>
 
@@ -1586,16 +1917,179 @@ function drawSimExample() {
   prev.disabled = next.disabled = ch.length < 2;
 }
 
+
+/* ================= MANAGEMENT DECK ================= */
+const DECK = { i: 0, slides: [], ready: false };
+const dkWrap = () => document.getElementById('deckwrap');
+
+function dkSvg(node, W, H) {
+  d3.select(node).selectAll('svg').remove();
+  return d3.select(node).insert('svg', ':first-child').attr('viewBox', `0 0 ${W} ${H}`).attr('preserveAspectRatio', 'xMidYMid meet').style('font-family', FONT);
+}
+
+/* slide 4: how each rule fills SA2612E */
+function dkCap() {
+  const n = document.getElementById('dk-plot-cap'); let mode = 'two';
+  const col = { rolled: C.violet, new: C.sub, split: C.blue2 };
+  function render() {
+    const rows = mode === 'two' ? P.rules2.slice(0, 2) : P.rules2, W = 760, H = 360, M = { t: 14, r: 16, b: 40, l: 160 };
+    const svg = dkSvg(n, W, H), x = d3.scaleLinear([0, 10], [M.l, W - M.r]), slot = (H - M.t - M.b) / 3;
+    svg.append('g').selectAll('line').data(d3.range(0, 11, 2)).join('line').attr('x1', d => x(d)).attr('x2', d => x(d)).attr('y1', M.t).attr('y2', H - M.b).attr('stroke', C.rule);
+    valueAxis(svg.append('g').attr('transform', `translate(0,${H - M.b})`).call(d3.axisBottom(x).tickValues(d3.range(0, 11, 2)).tickPadding(8)));
+    svg.append('text').attr('x', (M.l + W - M.r) / 2).attr('y', H - 6).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text('TEU of the 10 TEU free');
+    rows.forEach((r, ri) => {
+      const y0 = M.t + ri * slot + 6, bh = 38; let acc = 0;
+      svg.append('text').attr('x', M.l - 12).attr('y', y0 + bh / 2).attr('dy', '.35em').attr('text-anchor', 'end').attr('fill', C.ink).style('font-size', '13px').style('font-weight', 600).text(r.label);
+      r.segs.forEach(s => {
+        const x0 = x(acc), w = x(acc + s[1]) - x0; acc += s[1];
+        svg.append('rect').attr('x', x0).attr('y', y0).attr('width', w).attr('height', bh).attr('fill', col[s[2]]).attr('stroke', C.plane).attr('stroke-width', 1.5);
+        svg.append('text').attr('x', x0 + 8).attr('y', y0 + bh / 2).attr('dy', '.35em').attr('fill', s[2] === 'split' ? C.ink : '#fff').style('font-size', '12.5px').text(w > 140 ? `${s[0]} · ${s[1]}` : s[1]);
+      });
+      if (acc < 10) {
+        const x0 = x(acc), w = x(10) - x0;
+        svg.append('rect').attr('x', x0 + 1).attr('y', y0 + 1).attr('width', w - 2).attr('height', bh - 2).attr('fill', 'none').attr('stroke', C.ink3).attr('stroke-dasharray', '4 3');
+        svg.append('text').attr('x', x0 + w / 2).attr('y', y0 + bh / 2).attr('dy', '.35em').attr('text-anchor', 'middle').attr('fill', C.ink3).style('font-size', '12px').text(`${10 - acc} empty`);
+      }
+      const t = svg.append('text').attr('x', M.l).attr('y', y0 + bh + 20).style('font-size', '12.5px').attr('fill', C.ink3);
+      t.append('tspan').text('Rolls: ');
+      r.rolled.forEach((q, qi) => { t.append('tspan').attr('fill', q[1] ? C.cas : C.ink2).style('font-weight', q[1] ? 600 : 400).text(q[0] + (q[1] ? ' (second time)' : '')); if (qi < r.rolled.length - 1) t.append('tspan').text(' · '); });
+    });
+    keys(n, [{ color: C.violet, label: 'Already rolled once' }, { color: C.sub, label: 'New booking' }].concat(mode === 'two' ? [] : [{ color: C.blue2, label: 'Opt-in split part' }]).concat([{ color: 'transparent', outline: C.ink3, label: 'Sails empty' }]));
+  }
+  seg(document.getElementById('dk-ctl-cap'), [{ key: 'two', label: 'Two rules' }, { key: 'split', label: 'Add opt-in split' }], mode, k => { mode = k; render(); });
+  render();
+}
+
+/* slide 7: four rules on SA2618E */
+function dkRules() {
+  const n = document.getElementById('dk-plot-rules'); let metric = 'repeat';
+  const short = { lex: 'Recommended', native: 'Native first', util: 'Fill only', greedy: 'Greedy priority' };
+  const MET = { teu: ['TEU loaded', C.sub, 200], empty: ['TEU left empty', C.grey, 12], repeat: ['Customers rolled again', C.red3, 4], native: ['Native customers rolled', C.cas, 5] };
+  function render() {
+    const [lab, colr, max] = MET[metric], R = P.rules3, W = 760, H = 380, M = { t: 44, r: 10, b: 44, l: 52 };
+    const svg = dkSvg(n, W, H), x = d3.scaleBand(R.map(d => d.key), [M.l, W - M.r]).padding(0.3), y = d3.scaleLinear([0, max], [H - M.b, M.t]).nice();
+    svg.append('g').selectAll('line').data(y.ticks(5)).join('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', C.rule);
+    valueAxis(svg.append('g').attr('transform', `translate(${M.l},0)`).call(d3.axisLeft(y).ticks(Math.min(5, max)).tickFormat(d3.format('d')).tickPadding(8)));
+    ax(svg.append('g').attr('transform', `translate(0,${H - M.b})`).call(d3.axisBottom(x).tickSize(0).tickPadding(10).tickFormat(k => short[k])))
+      .selectAll('text').style('font-size', '13px').style('font-weight', k => (k === 'lex' ? 600 : 400)).attr('fill', k => (k === 'lex' ? C.ink : C.ink3));
+    svg.append('text').attr('transform', `translate(14,${(M.t + H - M.b) / 2}) rotate(-90)`).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text(lab);
+    R.forEach(d => {
+      const v = d.metrics[metric];
+      svg.append('rect').attr('x', x(d.key)).attr('width', x.bandwidth()).attr('y', y(v)).attr('height', Math.max(0, y(0) - y(v))).attr('fill', colr);
+      svg.append('text').attr('x', x(d.key) + x.bandwidth() / 2).attr('y', y(v) - 8).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '13px').text(v);
+      if (d.key === 'lex') svg.append('text').attr('x', x(d.key) + x.bandwidth() / 2).attr('y', Math.min(y(v), y(0)) - 28).attr('text-anchor', 'middle').attr('fill', CV('--rec')).style('font-size', '12px').style('font-weight', 600).text('▼ Recommended');
+    });
+  }
+  seg(document.getElementById('dk-ctl-rules'), [{ key: 'repeat', label: 'Rolled again' }, { key: 'teu', label: 'TEU loaded' }, { key: 'empty', label: 'TEU empty' }, { key: 'native', label: 'Native rolled' }], metric, k => { metric = k; render(); });
+  render();
+}
+
+/* slide 9: penalty threshold */
+function dkPen() {
+  const n = document.getElementById('dk-plot-pen'); let p = 1.5;
+  function render() {
+    const W = 760, H = 380, M = { t: 14, r: 150, b: 46, l: 50 }, svg = dkSvg(n, W, H);
+    const x = d3.scaleLinear([0, 4], [M.l, W - M.r]), y = d3.scaleLinear([5, 11], [H - M.b, M.t]);
+    svg.append('rect').attr('x', x(0)).attr('y', M.t).attr('width', x(2) - x(0)).attr('height', H - M.b - M.t).attr('fill', C.cas).attr('opacity', 0.08);
+    svg.append('rect').attr('x', x(2)).attr('y', M.t).attr('width', x(4) - x(2)).attr('height', H - M.b - M.t).attr('fill', C.sub).attr('opacity', 0.08);
+    svg.append('text').attr('x', x(1)).attr('y', M.t + 18).attr('text-anchor', 'middle').attr('fill', C.cas).style('font-size', '12.5px').style('font-weight', 600).text('Sahel rolled again');
+    svg.append('text').attr('x', x(3)).attr('y', M.t + 18).attr('text-anchor', 'middle').attr('fill', C.sub).style('font-size', '12.5px').style('font-weight', 600).text('Sahel sails');
+    svg.append('g').selectAll('line').data(y.ticks(6)).join('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', C.rule);
+    valueAxis(svg.append('g').attr('transform', `translate(${M.l},0)`).call(d3.axisLeft(y).ticks(6).tickPadding(8)));
+    ax(svg.append('g').attr('transform', `translate(0,${H - M.b})`).call(d3.axisBottom(x).ticks(8).tickSize(4)));
+    svg.append('text').attr('x', (M.l + W - M.r) / 2).attr('y', H - 6).attr('text-anchor', 'middle').attr('fill', C.ink2).style('font-size', '12px').text('penalty P for leaving Sahel behind again');
+    const line = d3.line().x(d => x(d[0])).y(d => y(d[1]));
+    svg.append('path').attr('d', line([[0, 10], [4, 6]])).attr('fill', 'none').attr('stroke', C.cas).attr('stroke-width', 2.5);
+    svg.append('path').attr('d', line([[0, 8], [4, 8]])).attr('fill', 'none').attr('stroke', C.sub).attr('stroke-width', 2.5);
+    svg.append('text').attr('x', x(4) + 8).attr('y', y(6)).attr('dy', '.35em').attr('fill', C.cas).style('font-size', '12.5px').text('Fill plan: 10 − P');
+    svg.append('text').attr('x', x(4) + 8).attr('y', y(8)).attr('dy', '.35em').attr('fill', C.sub).style('font-size', '12.5px').text('Protect plan: 8');
+    svg.append('line').attr('x1', x(p)).attr('x2', x(p)).attr('y1', M.t + 28).attr('y2', H - M.b).attr('stroke', C.ink2);
+    [[10 - p, C.cas], [8, C.sub]].forEach(d => svg.append('circle').attr('cx', x(p)).attr('cy', y(d[0])).attr('r', 5).attr('fill', d[1]).attr('stroke', C.plane).attr('stroke-width', 2));
+    const win = 10 - p > 8 ? 'At P = ' + p + ' the system rolls Sahel a second time.' : 'At P = ' + p + ' Sahel sails and the promise holds.';
+    d3.select(n).selectAll('p.note').remove(); d3.select(n).append('p').attr('class', 'note').html('<b>' + win + '</b>');
+  }
+  seg(document.getElementById('dk-ctl-pen'), [1, 1.5, 2.5, 3].map(v => ({ key: v, label: 'P = ' + v })), p, k => { p = k; render(); });
+  render();
+}
+
+function deckFit() {
+  const w = dkWrap(), st = document.getElementById('deckstage');
+  if (!w || w.closest('[hidden]')) return;
+  const W = w.clientWidth, H = w.clientHeight, chrome = 44;
+  const k = Math.max(0.1, Math.min((W * 0.955) / 1280, ((H - chrome - 10) * 0.98) / 720));
+  const x = (W - 1280 * k) / 2, y = Math.max(8, (H - chrome - 720 * k) / 2 + 4);
+  st.style.transform = `translate(${x}px,${y}px) scale(${k})`;
+}
+
+function deckGo(n, quiet) {
+  const S = DECK.slides; if (!S.length) return;
+  DECK.i = Math.max(0, Math.min(S.length - 1, n));
+  S.forEach((s, j) => s.classList.toggle('on', j === DECK.i));
+  document.getElementById('dk-bar').style.width = ((DECK.i + 1) / S.length * 100) + '%';
+  document.getElementById('dk-num').textContent = `${DECK.i + 1} / ${S.length}`;
+  document.getElementById('dk-prev').disabled = DECK.i === 0;
+  document.getElementById('dk-next').disabled = DECK.i === S.length - 1;
+  if (!quiet && !document.getElementById('view-deck').hidden) { try { history.replaceState(null, '', '#deck-' + (DECK.i + 1)); } catch (e) {} }
+}
+
+function deckFullscreen() {
+  const w = dkWrap();
+  try {
+    if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else { const req = w.requestFullscreen || w.webkitRequestFullscreen; if (req) { const r = req.call(w); if (r && r.catch) r.catch(() => {}); } }
+  } catch (e) {}
+}
+
+function deckInit() {
+  DECK.slides = [...document.querySelectorAll('#deckstage .slide')];
+  try { dkCap(); } catch (e) { document.getElementById('dk-plot-cap').innerHTML = '<p class="note">This chart could not be drawn.</p>'; }
+  try { dkRules(); } catch (e) { document.getElementById('dk-plot-rules').innerHTML = '<p class="note">This chart could not be drawn.</p>'; }
+  try { dkPen(); } catch (e) { document.getElementById('dk-plot-pen').innerHTML = '<p class="note">This chart could not be drawn.</p>'; }
+  const w = dkWrap();
+  document.getElementById('dk-prev').addEventListener('click', e => { e.stopPropagation(); deckGo(DECK.i - 1); });
+  document.getElementById('dk-next').addEventListener('click', e => { e.stopPropagation(); deckGo(DECK.i + 1); });
+  document.getElementById('dk-fs').addEventListener('click', e => { e.stopPropagation(); deckFullscreen(); });
+  w.addEventListener('click', e => {
+    if (e.target.closest('button, a, input, .seg, .dk-table, .legend')) return;
+    const r = w.getBoundingClientRect();
+    deckGo(e.clientX - r.left < r.width * 0.28 ? DECK.i - 1 : DECK.i + 1);
+    try { w.focus({ preventScroll: true }); } catch (err) {}
+  });
+  let tx = null;
+  w.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  w.addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(dx) > 40) deckGo(DECK.i + (dx < 0 ? 1 : -1)); }, { passive: true });
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('view-deck').hidden || e.target.closest('input, textarea, select')) return;
+    const k = e.key;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'n', 'N'].includes(k)) { e.preventDefault(); deckGo(DECK.i + 1); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'p', 'P'].includes(k)) { e.preventDefault(); deckGo(DECK.i - 1); }
+    else if (k === 'Home') { e.preventDefault(); deckGo(0); }
+    else if (k === 'End') { e.preventDefault(); deckGo(DECK.slides.length - 1); }
+    else if (k === 'f' || k === 'F') { e.preventDefault(); deckFullscreen(); }
+  });
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, () => setTimeout(deckFit, 30)));
+  window.addEventListener('resize', deckFit);
+  if (window.ResizeObserver) new ResizeObserver(deckFit).observe(w);
+  DECK.ready = true; deckGo(0, true);
+}
+try { deckInit(); } catch (e) { console.error('deck', e); }
+
 /* ================= TABS (hash routing) ================= */
+function currentView() {
+  const h = location.hash;
+  if (h === '#simulation') return 'simulation';
+  if (h === '#deck' || /^#deck-\d+$/.test(h)) return 'deck';
+  return 'report';
+}
 function showView() {
-  const sim = location.hash === '#simulation';
-  document.getElementById('view-report').hidden = sim;
-  document.getElementById('view-simulation').hidden = !sim;
-  document.querySelectorAll('.tabs a').forEach(a => { if ((a.dataset.view === 'simulation') === sim) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-  if (sim && !simState.ran && !simState.running) runSim();
+  const v = currentView();
+  ['report', 'deck', 'simulation'].forEach(n => { document.getElementById('view-' + n).hidden = n !== v; });
+  document.querySelectorAll('.tabs a').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  if (v === 'simulation' && !simState.ran && !simState.running) runSim();
+  if (v === 'deck') { const m = location.hash.match(/^#deck-(\d+)$/); deckGo(m ? +m[1] - 1 : DECK.i, true); requestAnimationFrame(deckFit); }
 }
 try { simSetup(); } catch (e) { const s = document.getElementById('sim-status'); if (s) s.textContent = 'The simulation could not be set up: ' + e.message; }
-window.addEventListener('hashchange', () => { showView(); if (location.hash === '#simulation' || location.hash === '#report') window.scrollTo(0, 0); });
+window.addEventListener('hashchange', () => { showView(); if (['#simulation', '#report', '#deck'].includes(location.hash)) window.scrollTo(0, 0); });
 showView();
 </script>
 
