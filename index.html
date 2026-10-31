@@ -488,7 +488,7 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
   <div class="approach">
     <p class="eyebrow">Approach</p>
     <p>We model this as <b>multi-objective optimisation</b>. Kling has several goals that compete: never roll a customer a second time, fill the ship, let urgent cargo through, and respect booking order. No single plan is best on all of them, as SA2612E (Exhibit 2) shows.</p>
-    <p>Underneath, the model is a <b>0-1 integer linear program</b>: one yes/no variable per booking and one capacity constraint. To handle the competing goals we use <b>lexicographic optimisation</b>: we rank the goals, solve one 0-1 integer program per goal in that order, and lock in each optimum before solving the next. The utilisation-only version, with TEU as the single goal, is shown alongside for comparison.</p>
+    <p>Underneath, the model is a <b>0-1 integer linear program</b>: one yes/no variable per booking and one capacity constraint. To handle the competing goals we use <b>lexicographic optimisation</b>: we rank the goals, solve one 0-1 integer program per goal in that order, and lock in each optimum before solving the next. <b>So the problem is multi-objective; the step-by-step part is the method we use to solve it.</b> It is still one decision, who sails on this voyage, made once. The utilisation-only version, with TEU as the single goal, is shown alongside for comparison.</p>
   </div>
 
   <aside class="extra">
