@@ -315,6 +315,17 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
 #deckstage .dk-blist li::before{content:"";position:absolute;left:0;top:.64em;width:9px;height:1px;background:var(--axis)}
 #deckstage .dk-punch{font-family:Chivo,system-ui,sans-serif;font-weight:600;font-size:19px;line-height:1.28;letter-spacing:-.014em;margin-top:auto!important;padding-top:14px;border-top:2px solid var(--ink)}
 @media (prefers-reduced-motion:reduce){.dk-bar{transition:none}}
+.bizrank{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--note-brd)}
+.bizhead{font-size:var(--fs-sm);font-weight:600;color:var(--note-ink);margin:0 0 10px}
+.bizrank ol{margin:0;padding:0;list-style:none;counter-reset:bz;display:grid;gap:8px}
+.bizrank li{counter-increment:bz;position:relative;padding-left:28px;font-size:var(--fs-sm);line-height:1.5;color:var(--ink-2)}
+.extra.biz .bizrank li::before{content:counter(bz);position:absolute;left:0;top:1px;width:19px;height:19px;display:grid;place-items:center;background:var(--note-ink);color:#fff;font-size:11px;font-weight:700}
+.bizrank li b{color:var(--ink)}
+.extra.biz{background:var(--note-bg);border-left-color:var(--note-ink)}
+.extra.biz .eyebrow{color:var(--note-ink)}
+.extra.biz li::before{content:"\2192";color:var(--note-ink)}
+.extra.biz .xdown{border-top-color:var(--note-brd)}
+.extra.biz .xdown b{color:var(--ink)}
 .codewrap{position:relative;margin:8px 0 0}
 .codewrap .code{margin:0;padding-top:40px}
 .copybtn{position:absolute;top:8px;right:8px;z-index:2;background:#f7f9fa}
@@ -516,6 +527,22 @@ footer p{margin:0 0 .6em;max-width:104ch}footer b{color:var(--ink-2)}
   </table></div>
 
   <div class="approach">
+    <p class="eyebrow">Why the goals are ranked in this order</p>
+    <p>The order is a management choice, not a result of the maths, so each rank needs a reason. <b>The rule of thumb: protect promises first, then avoid waste, then use any free choice well.</b></p>
+  </div>
+
+  <div class="xwrap"><table class="xtable txt">
+    <thead><tr><th>Rank · goal</th><th>Why it sits here</th><th>What goes wrong if it moves</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Rolled twice or more</td><td>These customers have already suffered the "serious service failure"; one more roll is a third. On a competitive lane, they are the most likely to leave.</td><td>Below rolled-once, a customer could be rolled a third time to spare someone their second.</td></tr>
+      <tr><td>2 · Rolled once</td><td>One more roll is exactly management's red line. Ranking them above new bookings means <b>everyone waits at most once</b> (Q1).</td><td>Below fill, the solver rolls Sahel again to gain 2 TEU (Q3).</td></tr>
+      <tr><td>3 · Fill the ship</td><td>Once the promise is kept, every empty TEU is revenue lost for good. Its price for sitting third is small: 2 TEU on Exhibit 2, none on Exhibit 3.</td><td>Above the promise, it breaks the one principle management set (Q4). Below cargo class, space could sail empty.</td></tr>
+      <tr><td>4 · Urgent cargo (medical, then spare parts)</td><td>Delay costs these customers most. Placed after fill, it only chooses between equally full plans, so it <b>never costs space or a second roll</b>. Medical comes before spare parts because patient care outweighs idle machinery.</td><td>Above fill, it would cost space (86 TEU across 400 simulated lists). Above the promise, new hospital beds could push a twice-rolled customer to a third roll.</td></tr>
+      <tr><td>5 · Booking order</td><td>A simple, auditable tie-break. First come, first served is already applied across voyages by ranks 1 and 2.</td><td>Higher up, it rewards whoever clicked first, which is easy to game, over the cost of delay.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="approach">
     <p class="eyebrow">The priority model at work, stage by stage</p>
     <p>This table runs the priority model on both voyages. For each goal, in priority order, it shows what the solver achieved and the most that goal could ever reach: every booking in that group, or all of the free space. Where the two numbers match, the goal was met in full. Where they differ, a higher-ranked goal forced it to give way.</p>
   </div>
@@ -651,6 +678,28 @@ print(df[[&quot;customer&quot;, &quot;teu&quot;, &quot;rolled&quot;, &quot;cls&q
     </div>
   </details>
 
+  <aside class="extra biz">
+    <p class="eyebrow">Why the business needs this model</p>
+    <p class="xlead">Without a model, every voyage is a negotiation. With one, the rule is fast, consistent and priced before anyone approves it.</p>
+    <ul>
+      <li><b>Time.</b> Clerks spend about two days a week arguing about who sails. The model decides in seconds at cut-off, so clerks handle only real exceptions.</li>
+      <li><b>Trust.</b> Every customer, on every voyage, gets the same published rule, and any decision can be explained in one sentence. That ends the "why them, not me?" calls.</li>
+      <li><b>Scale.</b> Exhibit 3 alone has 4,194,304 possible plans. By hand, staff fall back on rules of thumb: greedy priority left 10 TEU empty and rolled excavator spare parts.</li>
+      <li><b>Revenue and customers.</b> It fills space that would otherwise sail empty, and it protects repeat accounts that could book a rival's next sailing.</li>
+    </ul>
+    <div class="bizrank">
+      <p class="bizhead">Why each goal ranks where it does, from the business side</p>
+      <ol>
+        <li><b>Rolled twice or more · retention.</b> These customers are the most likely to switch carrier. Losing a repeat account costs far more than one voyage's space.</li>
+        <li><b>Rolled once · reputation.</b> One more roll breaks the promise management made. A published rule nobody trusts brings the arguments back.</li>
+        <li><b>Fill the ship · revenue.</b> An empty TEU is revenue lost for good, so space comes straight after the promises.</li>
+        <li><b>Urgent cargo · customer harm.</b> Medical delays and idle machinery hurt most and are the easiest choices to defend in public. Ranked after fill, so it never costs revenue.</li>
+        <li><b>Booking order · simplicity.</b> A neutral tie-break that staff can audit and customers accept.</li>
+      </ol>
+    </div>
+    <p class="xdown"><b>The real benefit:</b> management sees the price of each principle before approving it. Keeping the promise costs 2 TEU on SA2612E (Exhibit 2) and nothing on SA2618E (Exhibit 3).</p>
+  </aside>
+
   <div class="takeaway">
     <p class="eyebrow">Answer</p>
     <p class="lead">One binary variable per booking, one capacity constraint, and either one objective (TEU) or a ranked list of objectives: a 0-1 integer linear program with the structure of a 0-1 knapsack problem.</p>
@@ -659,6 +708,7 @@ print(df[[&quot;customer&quot;, &quot;teu&quot;, &quot;rolled&quot;, &quot;cls&q
       <li><b>Capacity constraint:</b> Σ <i>tᵢ xᵢ</i> ≤ <i>C</i>, with <i>C</i> = <b>10</b> TEU on SA2612E (Exhibit 2) and <b>200</b> TEU on SA2618E (Exhibit 3).</li>
       <li><b>Class:</b> 0-1 integer linear program (0-1 knapsack); <b>multi-objective</b> once the goals are ranked, solved by lexicographic optimisation.</li>
     </ul>
+    <p class="leadsub"><b>Why this order:</b> protect the promise first (rolled twice, then once), then avoid waste (fill the ship), then use any free choice well (urgent cargo, then booking order). See the table above.</p>
   </div>
 
   <div class="insight">
